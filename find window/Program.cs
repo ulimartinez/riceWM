@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace find_window
 {
@@ -12,6 +13,11 @@ namespace find_window
         
         [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
         public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int wFlags);
+        
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
 
         public static void Main(string[] args){
@@ -22,7 +28,7 @@ namespace find_window
                 IntPtr handle = process.MainWindowHandle;
                 if (handle != IntPtr.Zero){
                     //TODO: import the definitions of the flags for last parameter
-                    SetWindowPos(handle, 0, 0, 0, 0, 0, 0);
+                    SetWindowPos(handle, 0, 0, 0, 0, 0, 0x0001);
                 }
                 if (!String.IsNullOrEmpty(process.MainWindowTitle))
                 {
