@@ -1,4 +1,7 @@
-﻿namespace windowManager
+﻿using System.Runtime.InteropServices;
+using System.Security.Principal;
+
+namespace windowManager
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
