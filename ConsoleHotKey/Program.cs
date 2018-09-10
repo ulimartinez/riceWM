@@ -38,6 +38,7 @@ namespace ConsoleHotKey{
                 desk.show();
             }
             else if (e.Key == Keys.F) {
+                //testing oppening a firefox
                 System.Diagnostics.Process.Start("firefox.exe", "-new-window http://www.google.com");
             }
         }
