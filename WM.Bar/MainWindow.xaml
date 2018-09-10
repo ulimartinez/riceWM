@@ -1,0 +1,15 @@
+﻿<Window x:Class="WM.Bar.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="riceWm" >
+    <Grid>
+        <StackPanel x:Name="WorkSpacesStackPanel" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Height="Auto" Width="Auto">
+            <Label x:Name="InitialWorkspace" Content="1" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="1" VerticalAlignment="Top" Height="30" Width="30" Background="#7289da" Foreground="White"/>
+        </StackPanel>
+        <StackPanel x:Name="StatusStackPanel" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal" Height="Auto" Width="Auto"/>
+        <Label Content="Label" HorizontalAlignment="Left" Margin="240,125,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Window>
