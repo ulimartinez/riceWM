@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ConsoleHotKey
-{
-    class Program
-    {
+namespace ConsoleHotKey{
+    class Program {
+        static Desktop desk;
+        
         static void Main(string[] args)
         {
             foreach(var screen in Screen.AllScreens)
@@ -16,7 +17,9 @@ namespace ConsoleHotKey
                 Console.Out.WriteLine("Working Area: " + screen.WorkingArea.ToString());
                 Console.Out.WriteLine("Primary Screen: " + screen.Primary.ToString());
             }
-            HotKeyManager.RegisterHotKey(Keys.A, KeyModifiers.Alt);
+            HotKeyManager.RegisterHotKey(Keys.D1, HotKeyManager.KeyModifiers.Alt);
+            HotKeyManager.RegisterHotKey(Keys.Q, HotKeyManager.KeyModifiers.Alt);
+            HotKeyManager.RegisterHotKey(Keys.F, HotKeyManager.KeyModifiers.Alt);
             HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
             Console.ReadLine();      
         }
@@ -24,6 +27,19 @@ namespace ConsoleHotKey
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e)
         {
             Console.WriteLine("Hit me!");
+            if (e.Key == Keys.Q) {
+                //deleting the desktop
+                desk.Dispose();
+                
+            }
+            else if (e.Key == Keys.D1) {
+                //creating a desktop
+                desk = new Desktop("one");
+                desk.show();
+            }
+            else if (e.Key == Keys.F) {
+                System.Diagnostics.Process.Start("firefox.exe", "-new-window http://www.google.com");
+            }
         }
     }
 }

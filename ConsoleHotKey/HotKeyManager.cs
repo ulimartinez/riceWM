@@ -5,6 +5,25 @@ using System.Threading;
 
 namespace ConsoleHotKey{
     public static class HotKeyManager{
+        
+        #region DLLs
+        [DllImport("user32", SetLastError=true)]
+        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+        [DllImport("user32", SetLastError = true)]
+        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        #endregion
+        
+        #region enum
+        [Flags]
+        public enum KeyModifiers{
+            Alt = 1,
+            Control = 2,
+            Shift = 4,
+            Windows = 8,
+            NoRepeat = 0x4000
+        }
+        #endregion
         public static event EventHandler<HotKeyEventArgs> HotKeyPressed;
 
         public static int RegisterHotKey(Keys key, KeyModifiers modifiers){
@@ -77,11 +96,6 @@ namespace ConsoleHotKey{
             private const int WM_HOTKEY = 0x312;
         }
 
-        [DllImport("user32", SetLastError=true)]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-
-        [DllImport("user32", SetLastError = true)]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         private static int _id = 0;
     }
@@ -89,9 +103,9 @@ namespace ConsoleHotKey{
 
     public class HotKeyEventArgs : EventArgs{
         public readonly Keys Key;
-        public readonly KeyModifiers Modifiers;
+        public readonly HotKeyManager.KeyModifiers Modifiers;
 
-        public HotKeyEventArgs(Keys key, KeyModifiers modifiers){
+        public HotKeyEventArgs(Keys key, HotKeyManager.KeyModifiers modifiers){
             this.Key = key;
             this.Modifiers = modifiers;
         }
@@ -99,16 +113,7 @@ namespace ConsoleHotKey{
         public HotKeyEventArgs(IntPtr hotKeyParam){
             uint param = (uint)hotKeyParam.ToInt64();
             Key = (Keys)((param & 0xffff0000) >> 16);
-            Modifiers = (KeyModifiers)(param & 0x0000ffff);
+            Modifiers = (HotKeyManager.KeyModifiers)(param & 0x0000ffff);
         }
-    }
-
-    [Flags]
-    public enum KeyModifiers{
-        Alt = 1,
-        Control = 2,
-        Shift = 4,
-        Windows = 8,
-        NoRepeat = 0x4000
     }
 }
