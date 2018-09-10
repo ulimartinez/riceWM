@@ -24,12 +24,22 @@ namespace ConsoleHotKey{
             NoRepeat = 0x4000
         }
         #endregion
+        
+        #region vars
+        private static int _id = 0;
+        #endregion
+        
         public static event EventHandler<HotKeyEventArgs> HotKeyPressed;
 
-        public static int RegisterHotKey(Keys key, KeyModifiers modifiers){
+        public static int RegisterHotKey(Keys key, KeyModifiers[] modifiers){
             _windowReadyEvent.WaitOne();
-            int id = System.Threading.Interlocked.Increment(ref _id);
-            _wnd.Invoke(new RegisterHotKeyDelegate(RegisterHotKeyInternal), _hwnd, id, (uint)modifiers, (uint)key);
+            int id = _id;
+            uint mods = 0;
+            foreach (var mod in modifiers) {
+                mods |= (uint)mod;
+            }
+            _wnd.Invoke(new RegisterHotKeyDelegate(RegisterHotKeyInternal), _hwnd, id, mods, (uint)key);
+            System.Threading.Interlocked.Increment(ref _id);
             return id;
         }
 
@@ -95,15 +105,13 @@ namespace ConsoleHotKey{
 
             private const int WM_HOTKEY = 0x312;
         }
-
-
-        private static int _id = 0;
     }
 
 
     public class HotKeyEventArgs : EventArgs{
         public readonly Keys Key;
         public readonly HotKeyManager.KeyModifiers Modifiers;
+        public readonly int id;
 
         public HotKeyEventArgs(Keys key, HotKeyManager.KeyModifiers modifiers){
             this.Key = key;
