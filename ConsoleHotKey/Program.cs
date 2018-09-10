@@ -20,6 +20,7 @@ namespace ConsoleHotKey{
             HotKeyManager.RegisterHotKey(Keys.D1, HotKeyManager.KeyModifiers.Alt);
             HotKeyManager.RegisterHotKey(Keys.Q, HotKeyManager.KeyModifiers.Alt);
             HotKeyManager.RegisterHotKey(Keys.F, HotKeyManager.KeyModifiers.Alt);
+            HotKeyManager.RegisterHotKey(Keys.H, HotKeyManager.KeyModifiers.Alt);
             HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
             Console.ReadLine();      
         }
@@ -30,16 +31,19 @@ namespace ConsoleHotKey{
             if (e.Key == Keys.Q) {
                 //deleting the desktop
                 desk.Dispose();
-                
+
             }
             else if (e.Key == Keys.D1) {
                 //creating a desktop
-                desk = new Desktop("one");
+                desk = new Desktop("test2");
                 desk.show();
             }
             else if (e.Key == Keys.F) {
                 //testing oppening a firefox
                 System.Diagnostics.Process.Start("firefox.exe", "-new-window http://www.google.com");
+            }
+            else if (e.Key == Keys.H) {
+                desk.SwitchToOrginal();
             }
         }
     }

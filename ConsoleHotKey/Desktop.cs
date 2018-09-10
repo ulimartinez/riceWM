@@ -28,6 +28,19 @@ namespace ConsoleHotKey
 
         [DllImport("kernel32.dll")]
         public static extern int GetCurrentThreadId();
+        
+        [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Auto)]
+        static extern bool CreateProcess(
+            string lpApplicationName,
+            string lpCommandLine,
+            ref SECURITY_ATTRIBUTES lpProcessAttributes,
+            ref SECURITY_ATTRIBUTES lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            string lpCurrentDirectory,
+            [In] ref STARTUPINFO lpStartupInfo,
+            out PROCESS_INFORMATION lpProcessInformation);
         #endregion
 
         #region Enum
@@ -83,6 +96,48 @@ namespace ConsoleHotKey
         }
         #endregion
 
+        #region struct
+        
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct STARTUPINFO
+        {
+            public uint cb;
+            public string lpReserved;
+            public string lpDesktop;
+            public string lpTitle;
+            public uint dwX;
+            public uint dwY;
+            public uint dwXSize;
+            public uint dwYSize;
+            public uint dwXCountChars;
+            public uint dwYCountChars;
+            public uint dwFillAttribute;
+            public uint dwFlags;
+            public short wShowWindow;
+            public short cbReserved2;
+            public IntPtr lpReserved2;
+            public IntPtr hStdInput;
+            public IntPtr hStdOutput;
+            public IntPtr hStdError;
+        }
+        
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct PROCESS_INFORMATION
+        {
+            public IntPtr hProcess;
+            public IntPtr hThread;
+            public int dwProcessId;
+            public int dwThreadId;
+        }
+        
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SECURITY_ATTRIBUTES
+        {
+            public int nLength;
+            public IntPtr lpSecurityDescriptor;
+            public int bInheritHandle;
+        }
+        #endregion
 
         #region Variables
         IntPtr _hOrigDesktop;
@@ -119,7 +174,21 @@ namespace ConsoleHotKey
         public void show()
         {
             SetThreadDesktop(DesktopPtr);
+            STARTUPINFO si = new STARTUPINFO();
+            si.lpDesktop = "test2";
+            PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
+            SECURITY_ATTRIBUTES pSec = new SECURITY_ATTRIBUTES();
+            SECURITY_ATTRIBUTES tSec = new SECURITY_ATTRIBUTES();
+            
+            STARTUPINFO si2 = new STARTUPINFO();
+            si2.lpDesktop = "test2";
+            PROCESS_INFORMATION pi2 = new PROCESS_INFORMATION();
+            SECURITY_ATTRIBUTES pSec2 = new SECURITY_ATTRIBUTES();
+            SECURITY_ATTRIBUTES tSec2 = new SECURITY_ATTRIBUTES();
+            CreateProcess("C:\\WINDOWS\\explorer.exe", null, ref pSec, ref tSec, false, 0, IntPtr.Zero, null, ref si, out pi);
+            CreateProcess("C:\\WINDOWS\\system32\\notepad.exe", null, ref pSec2, ref tSec2, false, 0, IntPtr.Zero, null, ref si2, out pi2);
             SwitchDesktop(DesktopPtr);
+//            System.Diagnostics.Process.Start("firefox.exe", "-new-window http://www.google.com");
         }
 
         public void SwitchToOrginal()
@@ -130,7 +199,12 @@ namespace ConsoleHotKey
 
         private IntPtr CreateMyDesktop()
         {
-            return CreateDesktop(_sMyDesk, IntPtr.Zero, IntPtr.Zero, 0, (long)(DESKTOP_ACCESS_MASK.GENERIC_ALL | DESKTOP_ACCESS_MASK.WINSTA_ALL_ACCESS | DESKTOP_ACCESS_MASK.STANDARD_RIGHTS_ALL), IntPtr.Zero);
+            return CreateDesktop(
+                _sMyDesk, IntPtr.Zero, IntPtr.Zero, 0,
+                (long)(DESKTOP_ACCESS_MASK.GENERIC_ALL | 
+                       DESKTOP_ACCESS_MASK.WINSTA_ALL_ACCESS | 
+                       DESKTOP_ACCESS_MASK.STANDARD_RIGHTS_ALL),
+                IntPtr.Zero);
         }
 
         public IntPtr GetCurrentDesktopPtr()
