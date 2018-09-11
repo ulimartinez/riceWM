@@ -1,7 +1,7 @@
-* riceWm
+* rice.Wm
 [[https://raw.githubusercontent.com/ulimartinez/riceWM/master/rice.png]]
 
-riceWm is the first true tiling Window Manager for Win10. It is based on i3, bspwm and is developed mainly in C# using Win10 SDK and Hax.
+rice.Wm is the first true tiling Window Manager for Win10. It is based on i3, bspwm and is developed mainly in C# using Win10 SDK and Hax.
 
 *R* iceable
 
