@@ -18,9 +18,9 @@ namespace ConsoleHotKey{
         [Flags]
         public enum KeyModifiers{
             Alt = 1,
-            Control = 2,
+            Ctrl = 2,
             Shift = 4,
-            Windows = 8,
+            Win = 8,
             NoRepeat = 0x4000
         }
         #endregion
@@ -111,7 +111,7 @@ namespace ConsoleHotKey{
     public class HotKeyEventArgs : EventArgs{
         public readonly Keys Key;
         public readonly HotKeyManager.KeyModifiers Modifiers;
-        public readonly int id;
+        public readonly uint id;
 
         public HotKeyEventArgs(Keys key, HotKeyManager.KeyModifiers modifiers){
             this.Key = key;
@@ -119,9 +119,9 @@ namespace ConsoleHotKey{
         }
 
         public HotKeyEventArgs(IntPtr hotKeyParam){
-            uint param = (uint)hotKeyParam.ToInt64();
-            Key = (Keys)((param & 0xffff0000) >> 16);
-            Modifiers = (HotKeyManager.KeyModifiers)(param & 0x0000ffff);
+            id = (uint)hotKeyParam.ToInt64();
+            Key = (Keys)((id & 0xffff0000) >> 16);
+            Modifiers = (HotKeyManager.KeyModifiers)(id & 0x0000ffff);
         }
     }
 }

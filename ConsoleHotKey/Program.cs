@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -6,6 +7,8 @@ using System.Windows.Forms;
 
 namespace ConsoleHotKey{
     class Program {
+        
+        #region enums
         enum MonitorOptions : uint
         {
             MONITOR_DEFAULTTONULL = 0x00000000,
@@ -16,20 +19,25 @@ namespace ConsoleHotKey{
             public short x;
             public short y;
         }
+        #endregion
 
+        #region DLLs
         [DllImport("user32.dll", SetLastError = true)]
         static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
         static extern IntPtr SetFocus(IntPtr hWnd);
+        #endregion
         
+        #region vars
         static Desktop _desk;
         private static string config = "rice.config";
+        private static Dictionary<Int64, string> _map = new Dictionary<Int64, string>();
+        #endregion
         
         static void Main(string[] args)
         {
-            foreach(var screen in Screen.AllScreens)
-            {
+            foreach(var screen in Screen.AllScreens) {
                 // For each screen, add the screen properties to a list box.
                 Console.Out.WriteLine("Device Name: " + screen.DeviceName);
                 Console.Out.WriteLine("Bounds: " + screen.Bounds.ToString());
@@ -39,19 +47,44 @@ namespace ConsoleHotKey{
             }
             StreamReader reader = File.OpenText(config);
             string line;
-            while ((line = reader.ReadLine()) != null) 
-            {
+            while ((line = reader.ReadLine()) != null) {
                 //split the line by spaces
+                uint hotKeyId = 0;
                 string[] items = line.Split(' ');
                 if (items[0] == "bind") {
+                    if (items.Length < 3) {
+                        Console.Out.WriteLine("Bind must have 3 components, skipping");
+                        continue;
+                    }
                     string[] keys = items[1].Split('+');
                     if (keys.Length < 2) {
-                        Console.Out.WriteLine("Key bind must have a modifier and a key");
+                        Console.Out.WriteLine("Key bind must have a modifier and a key, skipping");
+                        continue;
                     }
-                    else {
-                        HotKeyManager.KeyModifiers mod = (HotKeyManager.KeyModifiers)Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true);
-                        Keys key = (Keys)Enum.Parse(typeof(Keys), keys[1], true);
-                        Console.Out.WriteLine(HotKeyManager.RegisterHotKey(key, new[]{mod}));
+
+                    HotKeyManager.KeyModifiers[] mods = null;
+                    Keys key = 0;
+                    if (keys.Length == 2) {
+                        mods = new[] {
+                            (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true)
+                        };
+                        key = (Keys)Enum.Parse(typeof(Keys), keys[1], true);
+                        hotKeyId = ((uint)key << 16) | (uint) mods[0];
+                    }
+                    else if (keys.Length == 3) {
+                        mods = new[] {
+                            (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true),
+                            (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[1], true)
+                        };
+                        key = (Keys)Enum.Parse(typeof(Keys), keys[2], true);
+                        hotKeyId = ((uint)key << 16) | (uint)mods[0] | (uint)mods[1];
+                    }
+                    HotKeyManager.RegisterHotKey(key, mods);
+                    string[] command = items[2].Split(':');
+                    if (command.Length > 0) {
+                        if (command[0].ToLower() == "run") {
+                            _map.Add(hotKeyId, command[1]);
+                        }
                     }
                 }
             }
@@ -66,23 +99,10 @@ namespace ConsoleHotKey{
 
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e)
         {
-            Console.WriteLine("Hit me!");
-            if (e.Key == Keys.Q) {
-                //deleting the desktop
-                _desk.Dispose();
-
-            }
-            else if (e.Key == Keys.D1) {
-                //creating a desktop
-                _desk = new Desktop("test2");
-                _desk.show();
-            }
-            else if (e.Key == Keys.F) {
-                //testing oppening a firefox
-                System.Diagnostics.Process.Start("firefox.exe", "-new-window http://www.google.com");
-            }
-            else if (e.Key == Keys.H) {
-                _desk.SwitchToOrginal();
+            foreach (var hotKey in _map) {
+                if (hotKey.Key == e.id) {
+                    System.Diagnostics.Process.Start(hotKey.Value);
+                }
             }
         }
     }
