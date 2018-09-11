@@ -11,12 +11,15 @@ namespace WM.Bar
 {
     public class Workspace
     {
+        public int Id { get; set; }
         public Label WorkspaceLabel { get; set; }
         public List<string> Processes { get; set; }
+        public bool IsActive { get; set; }
 
-        public Workspace(string workspaceLabel, List<string> processes)
+        public Workspace(int id, string workspaceLabel, List<string> processes, bool isActive)
         {
-
+            Id = id;
+            IsActive = isActive;
             WorkspaceLabel = new Label
             {
                 Content = workspaceLabel,
@@ -35,9 +38,10 @@ namespace WM.Bar
         }
 
 
-        public Workspace(Label workspaceLabel, List<string> processes)
+        public Workspace(int id, Label workspaceLabel, List<string> processes, bool isActive)
         {
-
+            Id = id;
+            IsActive = isActive;
             WorkspaceLabel = workspaceLabel;
             Processes = processes;
 

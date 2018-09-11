@@ -30,24 +30,22 @@ namespace WM.Bar
 
             InitializeComponent();
 
-            WorkSpaces = new List<Workspace>() { new Workspace(InitialWorkspace, null) };
+            WorkSpaces = new List<Workspace>() { new Workspace(0, InitialWorkspaceLabel, null, true)};
             StatusBarItems = new List<StatusBarItem>();
-
-            AddWorkspace(null);
-            AddWorkspace(null);
-            AddWorkspace(null);
-            AddWorkspace(null);
-            AddWorkspace(null);
+            for (var i = 0; i < 8; i++)
+            {
+                AddWorkspace();
+            }
 
             AddStatusBarItem(DateTime.Today.ToString(), "");
         }
 
-        public void AddWorkspace(List<string> process)
+        public void AddWorkspace()
         {
-            var newWorkspaceId = int.Parse(WorkSpaces.Last().WorkspaceLabel.Content.ToString()) + 1;
-            var workspace = new Workspace(newWorkspaceId.ToString(), process);
-            WorkSpaces.Add(workspace);
-            WorkSpacesStackPanel.Children.Add(workspace.WorkspaceLabel);
+            var newWorkspaceId = WorkSpaces.Last().Id + 1;
+            var newWorkspace = new Workspace(newWorkspaceId, Configuration.JNumbers[newWorkspaceId], null, false);
+            WorkSpaces.Add(newWorkspace);
+            WorkSpacesStackPanel.Children.Add(newWorkspace.WorkspaceLabel);
             WorkSpacesStackPanel.UpdateLayout();
         }
 
