@@ -2,7 +2,7 @@
 [[https://raw.githubusercontent.com/ulimartinez/riceWM/master/rice.png]]
 
 rice.Wm is the first true tiling Window Manager for /Win10/. It is based on /i3/, /bspwm/ and is developed mainly in C# using Win10 SDK +and H4x+.
-- *R* /iceable/, Windows users will stop being envious of all of the posts from [[http://reddit.com/r/unixporn][r/unixPorn]]
+- *R* /iceable/, Windows users will stop being envious of all the posts from [[http://reddit.com/r/unixporn][r/unixPorn]]
 - *I* "/It just works!/", just install and it will work "out of the box".
 - *C* /ustomizable/, customizing Win10 can be hard. This will provide a platform to customize your Win10 workflow and experience.
 - *E* /xtensible/, riceWm is open-source so features could be suggested our you could just make your own.
