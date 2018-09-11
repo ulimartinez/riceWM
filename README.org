@@ -1,5 +1,7 @@
 * riceWm
 [[https://openclipart.org/image/2400px/svg_to_png/177073/Riz-bol-baguettes-vrai-vectoriel-simplifie.png \| width=10px]]
+
+<a href="url"><img src="https://openclipart.org/image/2400px/svg_to_png/177073/Riz-bol-baguettes-vrai-vectoriel-simplifie.png" align="left" height="48" width="48" ></a>
 riceWm is the first true tiling Window Manager for Win10. It is based on i3, bspwm and is developed mainly in C# using Win10 SDK and Hax.
 
 *R* iceable
