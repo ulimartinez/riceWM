@@ -5,6 +5,7 @@ using System.Text;
 //using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace WM.Bar
@@ -25,16 +26,23 @@ namespace WM.Bar
                 Content = workspaceLabel,
                 Width = 30,
                 Height = 30,
-                Background = Configuration.BackgroundColor,
+                Background = isActive ? Configuration.BackgroundColorLighter: Configuration.BackgroundColor,
                 Foreground = Configuration.ForegroundColor,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
-//                BorderBrush = Brushes.Gray,
-//                BorderThickness = new Thickness(0, 1, 1, 1),
+                BorderBrush = Configuration.AccentColor,
+                BorderThickness = isActive? new Thickness(0, 0, 0, 3): new Thickness(0, 0, 0, 0)
             };
+            WorkspaceLabel.MouseLeftButtonUp += SetActive;
             Processes = processes;
 
+        }
+
+        public void SetActive(object sender, MouseEventArgs e) {
+            IsActive = true;
+            WorkspaceLabel.BorderThickness = IsActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0);
+            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter: Configuration.BackgroundColor;
         }
 
 
@@ -42,9 +50,16 @@ namespace WM.Bar
         {
             Id = id;
             IsActive = isActive;
+            workspaceLabel.MouseLeftButtonUp += SetActive;
             WorkspaceLabel = workspaceLabel;
             Processes = processes;
 
+        }
+
+        public void SetInactive() {
+            IsActive = false;
+            WorkspaceLabel.BorderThickness = IsActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0);
+            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter: Configuration.BackgroundColor;
         }
     }
 }

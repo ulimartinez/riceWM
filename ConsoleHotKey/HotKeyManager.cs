@@ -42,6 +42,7 @@ namespace ConsoleHotKey{
         public static int RegisterHotKey(Keys key, KeyModifiers[] modifiers) {
             _windowReadyEvent.WaitOne();
             int id = _id;
+            
             uint mods = 0;
             foreach (var mod in modifiers) {
                 mods |= (uint)mod;

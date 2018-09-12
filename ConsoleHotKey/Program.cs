@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Gma.UserActivityMonitor;
 
@@ -52,13 +54,13 @@ namespace ConsoleHotKey{
             while ((line = reader.ReadLine()) != null) {
                 //split the line by spaces
                 uint hotKeyId = 0;
-                string[] items = line.Split(' ');
-                if (items[0] == "bind") {
-                    if (items.Length < 3) {
+                var parts = Regex.Split(line, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                if (parts[0] == "bind") {
+                    if (parts.Length < 3) {
                         Console.Out.WriteLine("Bind must have 3 components, skipping");
                         continue;
                     }
-                    string[] keys = items[1].Split('+');
+                    string[] keys = parts[1].Split('+');
                     if (keys.Length < 2) {
                         Console.Out.WriteLine("Key bind must have a modifier and a key, skipping");
                         continue;
@@ -82,7 +84,8 @@ namespace ConsoleHotKey{
                         hotKeyId = ((uint)key << 16) | (uint)mods[0] | (uint)mods[1];
                     }
                     int i = HotKeyManager.RegisterHotKey(key, mods);
-                    string[] command = items[2].Split(':');
+                    var command = Regex.Split(parts[2], "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*):(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                    //string[] command = parts[2].Split(':');
                     if (command.Length > 0) {
                         if (command[0].ToLower() == "run") {
                             _map.Add(hotKeyId, command[1]);
@@ -102,7 +105,13 @@ namespace ConsoleHotKey{
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
             foreach (var hotKey in _map) {
                 if (hotKey.Key == e.id) {
-                    System.Diagnostics.Process.Start(hotKey.Value);
+                    if (hotKey.Value.Contains(' ')) {
+                        string[] cmdaArgs = hotKey.Value.Split(' ');
+                        System.Diagnostics.Process.Start(cmdaArgs[0], cmdaArgs[1]);
+                    }
+                    else {
+                        System.Diagnostics.Process.Start(hotKey.Value);
+                    }
                 }
             }
         }

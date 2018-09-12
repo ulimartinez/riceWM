@@ -38,6 +38,7 @@ namespace WM.Bar
             }
 
             AddStatusBarItem(DateTime.Today.ToString(), "");
+            SetActive(3);
         }
 
         public void AddWorkspace()
@@ -55,6 +56,14 @@ namespace WM.Bar
 
             StatusBarItems.Add(statusBarItem);
             StatusStackPanel.Children.Add(statusBarItem.StatusBarLabel);
+            StatusStackPanel.UpdateLayout();
+        }
+
+        public void SetActive(int index) {
+            foreach (var ws in WorkSpaces) {
+                ws.SetInactive();
+            }
+            WorkSpaces[index].SetActive(null, null);
             StatusStackPanel.UpdateLayout();
         }
     }
