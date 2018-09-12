@@ -25,13 +25,13 @@ namespace WM.Bar
                 Content = workspaceLabel,
                 Width = 30,
                 Height = 30,
-                Background = Configuration.BackgroundColorLighter,
+                Background = Configuration.BackgroundColor,
                 Foreground = Configuration.ForegroundColor,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
-                BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(0, 1, 1, 1),
+//                BorderBrush = Brushes.Gray,
+//                BorderThickness = new Thickness(0, 1, 1, 1),
             };
             Processes = processes;
 

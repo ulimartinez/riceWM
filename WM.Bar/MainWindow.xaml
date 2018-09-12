@@ -7,7 +7,7 @@
         Title="riceWm" >
     <Grid>
         <StackPanel x:Name="WorkSpacesStackPanel" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal" Height="Auto" Width="Auto">
-            <Label x:Name="InitialWorkspaceLabel" Content="一" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="1" VerticalAlignment="Top" Height="30" Width="30" Background="#7289da" Foreground="White"/>
+            <Label x:Name="InitialWorkspaceLabel" Content="一" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="#7289da" BorderThickness="0,0,0,3" VerticalAlignment="Top" Height="30" Width="30" Background="#2c2c36" Foreground="White"/>
         </StackPanel>
         <StackPanel x:Name="StatusStackPanel" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal" Height="Auto" Width="Auto"/>
         <Label Content="Label" HorizontalAlignment="Left" Margin="240,125,0,0" VerticalAlignment="Top"/>
