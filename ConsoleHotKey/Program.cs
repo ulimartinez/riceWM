@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Gma.UserActivityMonitor;
+using WM.Bar;
 
 namespace ConsoleHotKey{
     class Program {
@@ -44,7 +45,6 @@ namespace ConsoleHotKey{
         private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
         private static IntPtr _bar;
         #endregion
-        
         static void Main(string[] args)
         {
             foreach(var screen in Screen.AllScreens) {

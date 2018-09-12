@@ -28,13 +28,11 @@ namespace WM.Bar
                 Content = workspaceLabel,
                 Width = 30,
                 Height = 30,
-                Background = isActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor,
                 Foreground = Configuration.ForegroundColor,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 BorderBrush = Configuration.AccentColor,
-                BorderThickness = isActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0)
             };
             Processes = processes;
             _isActive = isActive;
@@ -48,8 +46,8 @@ namespace WM.Bar
             _isActive = isActive;
         }
 
-        public void UpdateLabel()
-        {
+        public void UpdateLabel() {
+            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor;
             WorkspaceLabel.BorderThickness = IsActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0);
             WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor;
         }

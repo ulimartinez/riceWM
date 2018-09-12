@@ -53,7 +53,7 @@ namespace WM.Bar
         {
             // Handle messages...
             if (msg == 0x165) {
-//                SetActive((int)lParam - 1);
+                SelectWorkspace(WorkSpaces[(int) lParam - 1].WorkspaceLabel);
             }
             return IntPtr.Zero;
         }
@@ -80,14 +80,15 @@ namespace WM.Bar
             StatusStackPanel.UpdateLayout();
         }
 
-        public void Workspace_MouseClickUp(object sender, MouseEventArgs e)
-        {
-            foreach (var workspace in WorkSpaces)
-            {
+        public void Workspace_MouseClickUp(object sender, MouseEventArgs e) {
+            var label = (Label) sender;
+            SelectWorkspace(label);
+        }
+
+        private void SelectWorkspace(Label label) {
+            foreach (var workspace in WorkSpaces) {
                 workspace.IsActive = false;
             }
-
-            var label = (Label) sender;
             var selectedWorkspace = WorkSpaces.Find(w => w.WorkspaceLabel.Content == label.Content);
             selectedWorkspace.IsActive = true;
         }

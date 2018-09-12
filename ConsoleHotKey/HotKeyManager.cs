@@ -97,6 +97,33 @@ namespace ConsoleHotKey{
             }
             return false;
         }
+        public static bool ALT()
+        {
+            //return keysDown.Contains(Keys.LShiftKey)
+            if (keysDown.Contains(Keys.Alt))
+            {
+                return true;
+            }
+            return false;
+        }
+        public static bool SHIFT()
+        {
+            //return keysDown.Contains(Keys.LShiftKey)
+            if (keysDown.Contains(Keys.Shift))
+            {
+                return true;
+            }
+            return false;
+        }
+        public static bool CTRL()
+        {
+            //return keysDown.Contains(Keys.LShiftKey)
+            if (keysDown.Contains(Keys.Control))
+            {
+                return true;
+            }
+            return false;
+        }
 
         private class MessageWindow : Form{
             public MessageWindow()
@@ -133,13 +160,13 @@ namespace ConsoleHotKey{
                 }
 
                 uint modifiers = 0;
-                if (e.Alt) {
+                if (ALT()) {
                     modifiers |= (uint)KeyModifiers.Alt;
                 }
-                if (e.Shift) {
+                if (SHIFT()) {
                     modifiers |= (uint)KeyModifiers.Shift;
                 }
-                if (e.Control) {
+                if (CTRL()) {
                     modifiers |= (uint) KeyModifiers.Ctrl;
                 }
                 if (WIN()) {
