@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
+using Gma.UserActivityMonitor;
 
 namespace ConsoleHotKey{
     class Program {
@@ -30,8 +31,9 @@ namespace ConsoleHotKey{
         #endregion
         
         #region vars
+        public static List<Keys> keysDown = new List<Keys>();
         static Desktop _desk;
-        private static string config = "rice.config";
+        private static string config = ".ricerc";
         private static Dictionary<Int64, string> _map = new Dictionary<Int64, string>();
         #endregion
         
@@ -79,7 +81,7 @@ namespace ConsoleHotKey{
                         key = (Keys)Enum.Parse(typeof(Keys), keys[2], true);
                         hotKeyId = ((uint)key << 16) | (uint)mods[0] | (uint)mods[1];
                     }
-                    HotKeyManager.RegisterHotKey(key, mods);
+                    int i = HotKeyManager.RegisterHotKey(key, mods);
                     string[] command = items[2].Split(':');
                     if (command.Length > 0) {
                         if (command[0].ToLower() == "run") {
@@ -97,8 +99,8 @@ namespace ConsoleHotKey{
             Console.ReadLine();
         }
 
-        static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e)
-        {
+        static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
+            var localMap = _map;
             foreach (var hotKey in _map) {
                 if (hotKey.Key == e.id) {
                     System.Diagnostics.Process.Start(hotKey.Value);

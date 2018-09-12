@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Gma.UserActivityMonitor;
 
 namespace ConsoleHotKey{
     public static class HotKeyManager{
@@ -26,12 +28,13 @@ namespace ConsoleHotKey{
         #endregion
         
         #region vars
+        public static List<Keys> keysDown = new List<Keys>();
         private static int _id = 0;
         #endregion
         
         public static event EventHandler<HotKeyEventArgs> HotKeyPressed;
 
-        public static int RegisterHotKey(Keys key, KeyModifiers[] modifiers){
+        public static int RegisterHotKey(Keys key, KeyModifiers[] modifiers) {
             _windowReadyEvent.WaitOne();
             int id = _id;
             uint mods = 0;
@@ -51,7 +54,7 @@ namespace ConsoleHotKey{
         delegate void UnRegisterHotKeyDelegate(IntPtr hwnd, int id);
 
         private static void RegisterHotKeyInternal(IntPtr hwnd, int id, uint modifiers, uint key){
-            RegisterHotKey(hwnd, id, modifiers, key);      
+            RegisterHotKey(hwnd, id, modifiers, key);
         }
 
         private static void UnRegisterHotKeyInternal(IntPtr hwnd, int id)
@@ -84,6 +87,8 @@ namespace ConsoleHotKey{
                 _wnd = this;
                 _hwnd = this.Handle;
                 _windowReadyEvent.Set();
+                HookManager.KeyDown += HookManager_KeyDown;
+                HookManager.KeyUp += HookManager_KeyUp;
             }
 
             protected override void WndProc(ref Message m)
@@ -102,6 +107,41 @@ namespace ConsoleHotKey{
                 // Ensure the window never becomes visible
                 base.SetVisibleCore(false);
             }
+            
+            private void HookManager_KeyDown(object sender, KeyEventArgs e) {
+                HotKeyEventArgs hk_e;
+                if(keysDown.Contains(e.KeyCode) == false)
+                {
+                    keysDown.Add(e.KeyCode);
+                }
+                if (e.KeyCode == Keys.F && WIN()) {
+                    e.Handled = true;
+                    hk_e = new HotKeyEventArgs(Keys.F, KeyModifiers.Win);
+                    HotKeyManager.OnHotKeyPressed(hk_e);
+                }
+                else if (e.KeyCode == Keys.D1 && WIN()) {
+                    e.Handled = true;
+                    hk_e = new HotKeyEventArgs(Keys.D1, KeyModifiers.Win);
+                    HotKeyManager.OnHotKeyPressed(hk_e);
+                }
+            }
+            private void HookManager_KeyUp(object sender, KeyEventArgs e)
+            {
+                while(keysDown.Contains(e.KeyCode))
+                {
+                    keysDown.Remove(e.KeyCode);
+                }
+            }
+            public static bool WIN()
+            {
+                //return keysDown.Contains(Keys.LShiftKey)
+                if (keysDown.Contains(Keys.LWin) || 
+                    keysDown.Contains(Keys.RWin))
+                {
+                    return true;
+                }
+                return false;
+            }
 
             private const int WM_HOTKEY = 0x312;
         }
@@ -114,8 +154,9 @@ namespace ConsoleHotKey{
         public readonly uint id;
 
         public HotKeyEventArgs(Keys key, HotKeyManager.KeyModifiers modifiers){
-            this.Key = key;
-            this.Modifiers = modifiers;
+            Key = key;
+            Modifiers = modifiers;
+            id = ((uint) key << 16) | (uint) modifiers;
         }
 
         public HotKeyEventArgs(IntPtr hotKeyParam){

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleHotKey", "ConsoleHot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WM.Bar", "WM.Bar\WM.Bar.csproj", "{84695357-2791-49CC-845A-7933000A36E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gma.UserActivityMonitor", "Gma.UserActivityMonitor/Gma.UserActivityMonitor.csproj", "{4738F0CA-8469-5357-2791-49CC7933000A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{84695357-2791-49CC-845A-7933000A36E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84695357-2791-49CC-845A-7933000A36E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84695357-2791-49CC-845A-7933000A36E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4738F0CA-8469-5357-2791-49CC7933000A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {4738F0CA-8469-5357-2791-49CC7933000A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {4738F0CA-8469-5357-2791-49CC7933000A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {4738F0CA-8469-5357-2791-49CC7933000A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
