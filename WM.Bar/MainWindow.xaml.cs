@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows.Input;
 
 namespace WM.Bar
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public List<Workspace> WorkSpaces { get; set; }
         public List<StatusBarItem> StatusBarItems { get; set; }
@@ -30,24 +31,28 @@ namespace WM.Bar
 
             InitializeComponent();
 
-            WorkSpaces = new List<Workspace>() { new Workspace(0, InitialWorkspaceLabel, null, true)};
+            InitialWorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
+            WorkSpaces = new List<Workspace>() { new Workspace(0, InitialWorkspaceLabel, null, true) };
             StatusBarItems = new List<StatusBarItem>();
             for (var i = 0; i < 8; i++)
             {
                 AddWorkspace();
             }
 
-            AddStatusBarItem(DateTime.Today.ToString(), "");
-            SetActive(3);
+            AddStatusBarItem(DateTime.Today.ToString(CultureInfo.InvariantCulture), "");
         }
 
         public void AddWorkspace()
         {
             var newWorkspaceId = WorkSpaces.Last().Id + 1;
             var newWorkspace = new Workspace(newWorkspaceId, Configuration.JNumbers[newWorkspaceId], null, false);
+            newWorkspace.WorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
+
             WorkSpaces.Add(newWorkspace);
             WorkSpacesStackPanel.Children.Add(newWorkspace.WorkspaceLabel);
+
             WorkSpacesStackPanel.UpdateLayout();
+
         }
 
         public void AddStatusBarItem(string content, string processId)
@@ -59,12 +64,16 @@ namespace WM.Bar
             StatusStackPanel.UpdateLayout();
         }
 
-        public void SetActive(int index) {
-            foreach (var ws in WorkSpaces) {
-                ws.SetInactive();
+        public void Workspace_MouseClickUp(object sender, MouseEventArgs e)
+        {
+            foreach (var workspace in WorkSpaces)
+            {
+                workspace.IsActive = false;
             }
-            WorkSpaces[index].SetActive(null, null);
-            StatusStackPanel.UpdateLayout();
+
+            var label = (Label) sender;
+            var selectedWorkspace = WorkSpaces.Find(w => w.WorkspaceLabel.Content == label.Content);
+            selectedWorkspace.IsActive = true;
         }
     }
 }

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-//using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace WM.Bar
 {
@@ -15,51 +9,50 @@ namespace WM.Bar
         public int Id { get; set; }
         public Label WorkspaceLabel { get; set; }
         public List<string> Processes { get; set; }
-        public bool IsActive { get; set; }
+        private bool _isActive;
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                _isActive = value;
+                UpdateLabel();
+            }
+        }
 
         public Workspace(int id, string workspaceLabel, List<string> processes, bool isActive)
         {
             Id = id;
-            IsActive = isActive;
             WorkspaceLabel = new Label
             {
                 Content = workspaceLabel,
                 Width = 30,
                 Height = 30,
-                Background = isActive ? Configuration.BackgroundColorLighter: Configuration.BackgroundColor,
+                Background = isActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor,
                 Foreground = Configuration.ForegroundColor,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 BorderBrush = Configuration.AccentColor,
-                BorderThickness = isActive? new Thickness(0, 0, 0, 3): new Thickness(0, 0, 0, 0)
+                BorderThickness = isActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0)
             };
-            WorkspaceLabel.MouseLeftButtonUp += SetActive;
             Processes = processes;
-
+            _isActive = isActive;
         }
-
-        public void SetActive(object sender, MouseEventArgs e) {
-            IsActive = true;
-            WorkspaceLabel.BorderThickness = IsActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0);
-            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter: Configuration.BackgroundColor;
-        }
-
 
         public Workspace(int id, Label workspaceLabel, List<string> processes, bool isActive)
         {
             Id = id;
-            IsActive = isActive;
-            workspaceLabel.MouseLeftButtonUp += SetActive;
             WorkspaceLabel = workspaceLabel;
             Processes = processes;
-
+            _isActive = isActive;
         }
 
-        public void SetInactive() {
-            IsActive = false;
+        public void UpdateLabel()
+        {
             WorkspaceLabel.BorderThickness = IsActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0);
-            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter: Configuration.BackgroundColor;
+            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor;
         }
+
     }
 }
