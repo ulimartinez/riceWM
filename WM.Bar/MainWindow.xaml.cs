@@ -24,7 +24,7 @@ namespace WM.Bar
             Topmost = true;
 
             Height = 30;
-            Top = 40;
+            Top = 0;
             Left = 0;
             Background = Configuration.BackgroundColor;
 
