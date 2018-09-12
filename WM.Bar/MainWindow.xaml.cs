@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace WM.Bar
@@ -38,7 +40,21 @@ namespace WM.Bar
             }
 
             AddStatusBarItem(DateTime.Today.ToString(), "");
-            SetActive(3);
+        }
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+            source.AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            // Handle messages...
+            if (msg == 0x165) {
+                SetActive((int)lParam - 1);
+            }
+            return IntPtr.Zero;
         }
 
         public void AddWorkspace()
