@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -30,6 +31,10 @@ namespace ConsoleHotKey{
         #region vars
         public static List<Keys> keysDown = new List<Keys>();
         private static int _id = 0;
+        private static volatile MessageWindow _wnd;
+        private static volatile IntPtr _hwnd;
+        private static ManualResetEvent _windowReadyEvent = new ManualResetEvent(false);
+        private static List<uint> registeredWinKeys = new List<uint>();
         #endregion
         
         public static event EventHandler<HotKeyEventArgs> HotKeyPressed;
@@ -41,6 +46,7 @@ namespace ConsoleHotKey{
             foreach (var mod in modifiers) {
                 mods |= (uint)mod;
             }
+
             _wnd.Invoke(new RegisterHotKeyDelegate(RegisterHotKeyInternal), _hwnd, id, mods, (uint)key);
             System.Threading.Interlocked.Increment(ref _id);
             return id;
@@ -54,7 +60,9 @@ namespace ConsoleHotKey{
         delegate void UnRegisterHotKeyDelegate(IntPtr hwnd, int id);
 
         private static void RegisterHotKeyInternal(IntPtr hwnd, int id, uint modifiers, uint key){
-            RegisterHotKey(hwnd, id, modifiers, key);
+            if (!RegisterHotKey(hwnd, id, modifiers, key)) {
+                registeredWinKeys.Add((key << 16) | modifiers);
+            }
         }
 
         private static void UnRegisterHotKeyInternal(IntPtr hwnd, int id)
@@ -68,9 +76,6 @@ namespace ConsoleHotKey{
             }
         }
 
-        private static volatile MessageWindow _wnd;
-        private static volatile IntPtr _hwnd;
-        private static ManualResetEvent _windowReadyEvent = new ManualResetEvent(false);
         static HotKeyManager(){
             Thread messageLoop = new Thread(delegate()
             {
@@ -79,6 +84,17 @@ namespace ConsoleHotKey{
             messageLoop.Name = "MessageLoopThread";
             messageLoop.IsBackground = true;
             messageLoop.Start();      
+        }
+        
+        public static bool WIN()
+        {
+            //return keysDown.Contains(Keys.LShiftKey)
+            if (keysDown.Contains(Keys.LWin) || 
+                keysDown.Contains(Keys.RWin))
+            {
+                return true;
+            }
+            return false;
         }
 
         private class MessageWindow : Form{
@@ -114,15 +130,27 @@ namespace ConsoleHotKey{
                 {
                     keysDown.Add(e.KeyCode);
                 }
-                if (e.KeyCode == Keys.F && WIN()) {
-                    e.Handled = true;
-                    hk_e = new HotKeyEventArgs(Keys.F, KeyModifiers.Win);
-                    HotKeyManager.OnHotKeyPressed(hk_e);
+
+                uint modifiers = 0;
+                if (e.Alt) {
+                    modifiers |= (uint)KeyModifiers.Alt;
                 }
-                else if (e.KeyCode == Keys.D1 && WIN()) {
-                    e.Handled = true;
-                    hk_e = new HotKeyEventArgs(Keys.D1, KeyModifiers.Win);
-                    HotKeyManager.OnHotKeyPressed(hk_e);
+                if (e.Shift) {
+                    modifiers |= (uint)KeyModifiers.Shift;
+                }
+                if (e.Control) {
+                    modifiers |= (uint) KeyModifiers.Ctrl;
+                }
+                if (WIN()) {
+                    modifiers |= (uint) KeyModifiers.Win;
+                }
+                uint keyId = ((uint) e.KeyCode << 16) | (uint) modifiers;
+                foreach (var registeredkeyId in registeredWinKeys) {
+                    if (keyId == registeredkeyId) {
+                        e.Handled = true;
+                        hk_e = new HotKeyEventArgs((IntPtr)keyId);
+                        OnHotKeyPressed(hk_e);
+                    }
                 }
             }
             private void HookManager_KeyUp(object sender, KeyEventArgs e)
@@ -131,16 +159,6 @@ namespace ConsoleHotKey{
                 {
                     keysDown.Remove(e.KeyCode);
                 }
-            }
-            public static bool WIN()
-            {
-                //return keysDown.Contains(Keys.LShiftKey)
-                if (keysDown.Contains(Keys.LWin) || 
-                    keysDown.Contains(Keys.RWin))
-                {
-                    return true;
-                }
-                return false;
             }
 
             private const int WM_HOTKEY = 0x312;

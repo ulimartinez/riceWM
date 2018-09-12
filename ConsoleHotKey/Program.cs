@@ -100,7 +100,6 @@ namespace ConsoleHotKey{
         }
 
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
-            var localMap = _map;
             foreach (var hotKey in _map) {
                 if (hotKey.Key == e.id) {
                     System.Diagnostics.Process.Start(hotKey.Value);
