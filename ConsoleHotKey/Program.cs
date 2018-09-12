@@ -1,14 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Gma.UserActivityMonitor;
-using WM.Bar;
 
 namespace ConsoleHotKey{
     class Program {
@@ -40,7 +37,7 @@ namespace ConsoleHotKey{
         #region vars
         public static List<Keys> keysDown = new List<Keys>();
         static Desktop _desk;
-        private static string config = ".ricerc";
+        private static string config = "ricerc";
         private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
         private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
         private static IntPtr _bar;
@@ -50,10 +47,10 @@ namespace ConsoleHotKey{
             foreach(var screen in Screen.AllScreens) {
                 // For each screen, add the screen properties to a list box.
                 Console.Out.WriteLine("Device Name: " + screen.DeviceName);
-                Console.Out.WriteLine("Bounds: " + screen.Bounds.ToString());
-                Console.Out.WriteLine("Type: " + screen.GetType().ToString());
-                Console.Out.WriteLine("Working Area: " + screen.WorkingArea.ToString());
-                Console.Out.WriteLine("Primary Screen: " + screen.Primary.ToString());
+                Console.Out.WriteLine("Bounds: " + screen.Bounds);
+                Console.Out.WriteLine("Type: " + screen.GetType());
+                Console.Out.WriteLine("Working Area: " + screen.WorkingArea);
+                Console.Out.WriteLine("Primary Screen: " + screen.Primary);
             }
 
             _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");

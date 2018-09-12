@@ -1,0 +1,20 @@
+$mod Alt
+
+
+#=============== Run programs =================#
+bind Win+PrintScreen Run:"C:\Windows\System32\SnippingTool.exe"
+bind Win+N Run:"IExplorer.exe https://google.com/"
+bind Win+F Run:firefox
+bind Ctrl+Shift+D1 Run:notepad
+
+#=============== Workspaces ===================#
+bind Win+D1 workspace:1
+bind Win+D2 workspace:2
+bind Win+D3 workspace:3
+bind Win+D4 workspace:4
+bind Win+D5 workspace:5
+bind Win+D6 workspace:6
+bind Win+D7 workspace:7
+bind Win+D8 workspace:8
+bind Win+D9 workspace:9
+
