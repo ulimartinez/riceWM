@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Gma.UserActivityMonitor;
@@ -30,13 +31,18 @@ namespace ConsoleHotKey{
 
         [DllImport("user32.dll", SetLastError = true)]
         static extern IntPtr SetFocus(IntPtr hWnd);
+        
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
         #endregion
         
         #region vars
         public static List<Keys> keysDown = new List<Keys>();
         static Desktop _desk;
         private static string config = ".ricerc";
-        private static Dictionary<Int64, string> _map = new Dictionary<Int64, string>();
+        private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
+        private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
+        private static IntPtr _bar;
         #endregion
         
         static void Main(string[] args)
@@ -49,6 +55,8 @@ namespace ConsoleHotKey{
                 Console.Out.WriteLine("Working Area: " + screen.WorkingArea.ToString());
                 Console.Out.WriteLine("Primary Screen: " + screen.Primary.ToString());
             }
+
+            _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
             StreamReader reader = File.OpenText(config);
             string line;
             while ((line = reader.ReadLine()) != null) {
@@ -88,7 +96,13 @@ namespace ConsoleHotKey{
                     //string[] command = parts[2].Split(':');
                     if (command.Length > 0) {
                         if (command[0].ToLower() == "run") {
-                            _map.Add(hotKeyId, command[1]);
+                            _runMap.Add(hotKeyId, command[1]);
+                        }
+                        else if (command[0].ToLower() == "workspace") {
+                            //throw new NotImplementedException();
+                            int wsNum = 0;
+                            Int32.TryParse(command[1], out wsNum);
+                            _workspaceMap.Add(hotKeyId, wsNum);
                         }
                     }
                 }
@@ -103,15 +117,23 @@ namespace ConsoleHotKey{
         }
 
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
-            foreach (var hotKey in _map) {
+            foreach (var hotKey in _runMap) {
                 if (hotKey.Key == e.id) {
                     if (hotKey.Value.Contains(' ')) {
                         string[] cmdaArgs = hotKey.Value.Split(' ');
                         System.Diagnostics.Process.Start(cmdaArgs[0], cmdaArgs[1]);
+                        return;
                     }
                     else {
                         System.Diagnostics.Process.Start(hotKey.Value);
+                        return;
                     }
+                }
+            }
+
+            foreach (var ws in _workspaceMap) {
+                if (ws.Key == e.id) {
+                    SendMessage(_bar, 0x165, (IntPtr)ws.Value, (IntPtr)ws.Value);
                 }
             }
         }
