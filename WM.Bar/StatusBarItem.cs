@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using WM.Utils;
 
 namespace WM.Bar
 {
@@ -16,8 +17,8 @@ namespace WM.Bar
             {
                 Content = statusBarItemLabel,
                 Height = 30,
-                Background = Configuration.BackgroundColorLighter,
-                Foreground = Configuration.ForegroundColor,
+                Background = ConfigurationManager.BackgroundColorLighter,
+                Foreground = ConfigurationManager.ForegroundColor,
                 HorizontalAlignment = HorizontalAlignment.Right,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,

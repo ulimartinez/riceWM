@@ -13,10 +13,10 @@ namespace WM.Utils
 		public static Dictionary<string, string> Variables = new Dictionary<string, string>();
 		public static List<Binding> Bindings = new List<Binding>();
 		public static List<StartupTask> StartupTasks = new List<StartupTask>();
-		public static Brush BackgroundColor { get; } = (Brush) new BrushConverter().ConvertFrom("#23232D");
-		public static Brush BackgroundColorLighter { get; } = (Brush) new BrushConverter().ConvertFrom("#2c2c36");
-		public static Brush AccentColor { get; } = (Brush) new BrushConverter().ConvertFrom("#7289da");
-		public static Brush ForegroundColor { get; } = (Brush) new BrushConverter().ConvertFrom("#eae5e5");
+		public static Brush BackgroundColor { get; set; }
+		public static Brush BackgroundColorLighter { get; set; }
+		public static Brush AccentColor { get; set; } 
+		public static Brush ForegroundColor { get; set; } 
 		public static string[] JNumbers = {"一", "二", "三", "四", "五", "六", "七", "八", "九"};
 
 		public ConfigurationManager()
@@ -42,7 +42,9 @@ namespace WM.Utils
 				}
 			}
 			SubstituteVariables();
+			SetColors();
 		}
+
 
 		private static void AddBinding(string[] bindStatement)
 		{
@@ -91,6 +93,14 @@ namespace WM.Utils
 					binding.KeyCombination = binding.KeyCombination.Replace(variable.Key, variable.Value);
 				}
 			}
+		}
+		
+		private static void SetColors()
+		{
+			BackgroundColor = (Brush) new BrushConverter().ConvertFrom(Variables["$backgroundColor"]);
+			BackgroundColorLighter = (Brush) new BrushConverter().ConvertFrom(Variables["$backgroundColorLighter"]);
+			AccentColor = (Brush) new BrushConverter().ConvertFrom(Variables["$accentColor"]);
+			ForegroundColor = (Brush) new BrushConverter().ConvertFrom(Variables["$foregroundColor"]);
 		}
 	}
 }

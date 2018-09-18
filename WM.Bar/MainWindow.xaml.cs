@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using WM.Utils;
 
 namespace WM.Bar
 {
@@ -16,6 +17,7 @@ namespace WM.Bar
     {
         public List<Workspace> WorkSpaces { get; set; }
         public List<StatusBarItem> StatusBarItems { get; set; }
+        public ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
         public MainWindow()
         {
@@ -28,7 +30,7 @@ namespace WM.Bar
             Height = 30;
             Top = 0;
             Left = 0;
-            Background = Configuration.BackgroundColor;
+            Background = ConfigurationManager.BackgroundColor;
 
             InitializeComponent();
 
@@ -61,7 +63,7 @@ namespace WM.Bar
         public void AddWorkspace()
         {
             var newWorkspaceId = WorkSpaces.Last().Id + 1;
-            var newWorkspace = new Workspace(newWorkspaceId, Configuration.JNumbers[newWorkspaceId], null, false);
+            var newWorkspace = new Workspace(newWorkspaceId, ConfigurationManager.JNumbers[newWorkspaceId], null, false);
             newWorkspace.WorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
 
             WorkSpaces.Add(newWorkspace);

@@ -59,7 +59,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Configuration.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -102,6 +101,10 @@
     <ProjectReference Include="..\Gma.UserActivityMonitor\Gma.UserActivityMonitor.csproj">
       <Project>{4738f0ca-8469-5357-2791-49cc7933000a}</Project>
       <Name>Gma.UserActivityMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WM.Utils\WM.Utils.csproj">
+      <Project>{6284e342-22d1-4c54-855f-d43ffc0035e9}</Project>
+      <Name>WM.Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

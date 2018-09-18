@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using WM.Utils;
 
 namespace WM.Bar
 {
@@ -28,11 +29,11 @@ namespace WM.Bar
                 Content = workspaceLabel,
                 Width = 30,
                 Height = 30,
-                Foreground = Configuration.ForegroundColor,
+                Foreground = ConfigurationManager.ForegroundColor,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
-                BorderBrush = Configuration.AccentColor,
+                BorderBrush = ConfigurationManager.AccentColor,
             };
             Processes = processes;
             _isActive = isActive;
@@ -47,9 +48,9 @@ namespace WM.Bar
         }
 
         public void UpdateLabel() {
-            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor;
+            WorkspaceLabel.Background = IsActive ? ConfigurationManager.BackgroundColorLighter : ConfigurationManager.BackgroundColor;
             WorkspaceLabel.BorderThickness = IsActive ? new Thickness(0, 0, 0, 3) : new Thickness(0, 0, 0, 0);
-            WorkspaceLabel.Background = IsActive ? Configuration.BackgroundColorLighter : Configuration.BackgroundColor;
+            WorkspaceLabel.Background = IsActive ? ConfigurationManager.BackgroundColorLighter : ConfigurationManager.BackgroundColor;
         }
 
     }
