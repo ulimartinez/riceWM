@@ -174,21 +174,7 @@ namespace ConsoleHotKey
         public void show()
         {
             SetThreadDesktop(DesktopPtr);
-            STARTUPINFO si = new STARTUPINFO();
-            si.lpDesktop = "test2";
-            PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
-            SECURITY_ATTRIBUTES pSec = new SECURITY_ATTRIBUTES();
-            SECURITY_ATTRIBUTES tSec = new SECURITY_ATTRIBUTES();
-            
-            STARTUPINFO si2 = new STARTUPINFO();
-            si2.lpDesktop = "test2";
-            PROCESS_INFORMATION pi2 = new PROCESS_INFORMATION();
-            SECURITY_ATTRIBUTES pSec2 = new SECURITY_ATTRIBUTES();
-            SECURITY_ATTRIBUTES tSec2 = new SECURITY_ATTRIBUTES();
-//            CreateProcess("C:\\WINDOWS\\explorer.exe", null, ref pSec, ref tSec, false, 0, IntPtr.Zero, null, ref si, out pi);
-            CreateProcess("C:\\WINDOWS\\system32\\notepad.exe", null, ref pSec2, ref tSec2, false, 0, IntPtr.Zero, null, ref si2, out pi2);
             SwitchDesktop(DesktopPtr);
-//            System.Diagnostics.Process.Start("firefox.exe", "-new-window http://www.google.com");
         }
 
         public void SwitchToOrginal()
