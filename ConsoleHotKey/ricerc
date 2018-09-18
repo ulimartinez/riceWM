@@ -1,5 +1,8 @@
-$mod Alt
+set $mod Alt
 
+
+#=============== Startup Programs===============#
+exec Run:"C:\Windows\System32\SnippingTool.exe"
 
 #=============== Run programs =================#
 bind Win+PrintScreen Run:"C:\Windows\System32\SnippingTool.exe"
@@ -17,4 +20,3 @@ bind Win+D6 workspace:6
 bind Win+D7 workspace:7
 bind Win+D8 workspace:8
 bind Win+D9 workspace:9
-
