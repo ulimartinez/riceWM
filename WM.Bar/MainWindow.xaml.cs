@@ -17,7 +17,7 @@ namespace WM.Bar
     {
         public List<Workspace> WorkSpaces { get; set; }
         public List<StatusBarItem> StatusBarItems { get; set; }
-        public ConfigurationManager ConfigurationManager = new ConfigurationManager();
+        public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
         public MainWindow()
         {
