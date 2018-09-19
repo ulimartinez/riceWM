@@ -1,22 +1,27 @@
 set $mod Alt
-
-
-#=============== Startup Programs===============#
-exec Run:"C:\Windows\System32\SnippingTool.exe"
+set $mod1 Win
+set $backgroundColor #23232D
+set $backgroundColorLighter #2c2c36
+set $accentColor #7289da
+set $foregroundColor #eae5e5
 
 #=============== Run programs =================#
-bind Win+PrintScreen Run:"C:\Windows\System32\SnippingTool.exe"
-bind Win+N Run:"IExplorer.exe https://google.com/"
-bind Win+F Run:firefox
-bind Ctrl+Shift+D1 Run:notepad
+bind Win+PrintScreen run "C:\Windows\System32\SnippingTool.exe"
+bind Win+N run "IExplorer.exe https://google.com/"
+bind Win+F run firefox
+bind Ctrl+Shift+D1 run notepad
 
 #=============== Workspaces ===================#
-bind Win+D1 workspace:1
-bind Win+D2 workspace:2
-bind Win+D3 workspace:3
-bind Win+D4 workspace:4
-bind Win+D5 workspace:5
-bind Win+D6 workspace:6
-bind Win+D7 workspace:7
-bind Win+D8 workspace:8
-bind Win+D9 workspace:9
+bind Win+D1 workspace 1
+bind Win+D2 workspace 2
+bind Win+D3 workspace 3
+bind Win+D4 workspace 4
+bind Win+D5 workspace 5
+bind Win+D6 workspace 6
+bind Win+D7 workspace 7
+bind Win+D8 workspace 8
+bind Win+D9 workspace 9
+bind $mod+D9 someCommand
+bind $mod1+D9 someCommand
+
+startup command "some list of parameters"

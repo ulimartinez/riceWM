@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using WM.Utils;
+using Binding = WM.Utils.Binding;
 
 namespace ConsoleHotKey{
     class Program {
@@ -36,14 +39,52 @@ namespace ConsoleHotKey{
         
         #region vars
         public static List<Keys> keysDown = new List<Keys>();
-        static Desktop _desk;
+        private static Desktop _desk { get; set; }
         private static string config = "ricerc";
         private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
         private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
-        private static IntPtr _bar;
+        private static IntPtr _bar { get; set; }
+        public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
+
         #endregion
-        static void Main(string[] args)
+
+        private static void loadKeybinds()
         {
+            List<Binding> bindings = ConfigurationManager.Bindings;
+            foreach (var binding in bindings)
+            {
+                uint hotKeyId = 0;
+                string[] keys = binding.KeyCombination.Split('+');
+                HotKeyManager.KeyModifiers[] mods = null;
+                Keys key = 0;
+                if (keys.Length == 2) {
+                    mods = new[] {
+                        (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true)
+                    };
+                    key = (Keys)Enum.Parse(typeof(Keys), keys[1], true);
+                    hotKeyId = ((uint)key << 16) | (uint) mods[0];
+                }
+                else if (keys.Length == 3) {
+                    mods = new[] {
+                        (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true),
+                        (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[1], true)
+                    };
+                    key = (Keys)Enum.Parse(typeof(Keys), keys[2], true);
+                    hotKeyId = ((uint)key << 16) | (uint)mods[0] | (uint)mods[1];
+                }
+                HotKeyManager.RegisterHotKey(key, mods);
+                if (binding.Command.ToLower() == "run") {
+                    _runMap.Add(hotKeyId, binding.Parameters);
+                }
+                else if (binding.Command.ToLower() == "workspace") {
+                    //throw new NotImplementedException();
+                    int wsNum = 0;
+                    Int32.TryParse(binding.Parameters, out wsNum);
+                    _workspaceMap.Add(hotKeyId, wsNum);
+                }
+            }
+        }
+        static void Main(string[] args) {
             foreach(var screen in Screen.AllScreens) {
                 // For each screen, add the screen properties to a list box.
                 Console.Out.WriteLine("Device Name: " + screen.DeviceName);
@@ -54,56 +95,8 @@ namespace ConsoleHotKey{
             }
 
             _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
-            StreamReader reader = File.OpenText(config);
-            string line;
-            while ((line = reader.ReadLine()) != null) {
-                //split the line by spaces
-                uint hotKeyId = 0;
-                var parts = Regex.Split(line, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                if (parts[0] == "bind") {
-                    if (parts.Length < 3) {
-                        Console.Out.WriteLine("Bind must have 3 components, skipping");
-                        continue;
-                    }
-                    string[] keys = parts[1].Split('+');
-                    if (keys.Length < 2) {
-                        Console.Out.WriteLine("Key bind must have a modifier and a key, skipping");
-                        continue;
-                    }
-
-                    HotKeyManager.KeyModifiers[] mods = null;
-                    Keys key = 0;
-                    if (keys.Length == 2) {
-                        mods = new[] {
-                            (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true)
-                        };
-                        key = (Keys)Enum.Parse(typeof(Keys), keys[1], true);
-                        hotKeyId = ((uint)key << 16) | (uint) mods[0];
-                    }
-                    else if (keys.Length == 3) {
-                        mods = new[] {
-                            (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[0], true),
-                            (HotKeyManager.KeyModifiers) Enum.Parse(typeof(HotKeyManager.KeyModifiers), keys[1], true)
-                        };
-                        key = (Keys)Enum.Parse(typeof(Keys), keys[2], true);
-                        hotKeyId = ((uint)key << 16) | (uint)mods[0] | (uint)mods[1];
-                    }
-                    int i = HotKeyManager.RegisterHotKey(key, mods);
-                    var command = Regex.Split(parts[2], "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*):(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                    //string[] command = parts[2].Split(':');
-                    if (command.Length > 0) {
-                        if (command[0].ToLower() == "run") {
-                            _runMap.Add(hotKeyId, command[1]);
-                        }
-                        else if (command[0].ToLower() == "workspace") {
-                            //throw new NotImplementedException();
-                            int wsNum = 0;
-                            Int32.TryParse(command[1], out wsNum);
-                            _workspaceMap.Add(hotKeyId, wsNum);
-                        }
-                    }
-                }
-            }
+            loadKeybinds();
+           
             POINT pt = new POINT();
             pt.x = 1;
             pt.y = 1;
