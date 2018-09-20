@@ -17,7 +17,10 @@ namespace ConsoleHotKey
 
         public void destroy()
         {
-            SendMessage(handle, (int) WindowsMessage.WM_SYSCOMMAND, (IntPtr) SysCommands.SC_CLOSE, IntPtr.Zero);
+            if (handle != null)
+            {
+                SendMessage(handle, (int) WindowsMessage.WM_SYSCOMMAND, (IntPtr) SysCommands.SC_CLOSE, IntPtr.Zero);                
+            }
         }
     }
 }

@@ -10,9 +10,9 @@ using System.Windows.Forms;
 using WM.Utils;
 using Binding = WM.Utils.Binding;
 
+
 namespace ConsoleHotKey{
-    class Program {
-        
+    class Program {        
         #region enums
         enum MonitorOptions : uint
         {
@@ -54,8 +54,9 @@ namespace ConsoleHotKey{
         #endregion
         
         #region vars
-        public List<Output> outputs = new List<Output>();
+        public static List<Output> outputs = new List<Output>();
         public static List<Keys> keysDown = new List<Keys>();
+        public static List<int> workspaces = new List<int>();
         private static Desktop _desk { get; set; }
         private static string config = "ricerc";
         private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
@@ -66,6 +67,48 @@ namespace ConsoleHotKey{
 
         #endregion
 
+        [STAThread]
+        static void Main(string[] args) {
+            workspaces.Add(0);
+            foreach(var screen in Screen.AllScreens)
+            {
+                Output tmp = new Output
+                    {X = screen.WorkingArea.X, Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height};
+                outputs.Add(tmp);
+            }
+
+            _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
+            loadKeybinds();
+           
+            IntPtr hmon = (IntPtr) 67552;
+            SetFocus(hmon);
+            HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
+            Console.ReadLine();
+        }
+
+        public static int getNextWorkspace()
+        {
+            int next = 0;
+            if (workspaces.Count == 0)
+            {
+                next = 1;
+                workspaces.Add(next);
+            }
+            else
+            {
+                workspaces.Sort();
+                int len = workspaces.Count;
+                int last = workspaces[len - 1];
+                next = last + 1;
+                workspaces.Add(next);
+            }
+            return next;
+        }
+
+        public void removeWorkspace(int ws)
+        {
+            workspaces.Remove(ws);
+        }
         private static void loadKeybinds()
         {
             List<Binding> bindings = ConfigurationManager.Bindings;
@@ -106,32 +149,7 @@ namespace ConsoleHotKey{
                 }
             }
         }
-        static void Main(string[] args) {
-            foreach(var screen in Screen.AllScreens)
-            {
-                Output tmp = new Output
-                    {X = screen.WorkingArea.X, Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height};
-                // For each screen, add the screen properties to a list box.
-                Console.Out.WriteLine("Device Name: " + screen.DeviceName);
-                Console.Out.WriteLine("Bounds: " + screen.Bounds);
-                Console.Out.WriteLine("Type: " + screen.GetType());
-                Console.Out.WriteLine("Working Area: " + screen.WorkingArea);
-                Console.Out.WriteLine("Primary Screen: " + screen.Primary);
-            }
-
-            _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
-            loadKeybinds();
-           
-            POINT pt = new POINT();
-            pt.x = 50;
-            pt.y = 50;
-            IntPtr hmon = MonitorFromPoint(pt, MonitorOptions.MONITOR_DEFAULTTONEAREST);
-            string textA = WindowFinder.GetWindowTextA(hmon);
-            SetFocus(hmon);
-            HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
-            Console.ReadLine();
-        }
-
+        
         //Debugging purposes
         static void printFocus()
         {

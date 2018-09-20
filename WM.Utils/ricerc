@@ -27,3 +27,5 @@ bind $mod+D9 someCommand
 bind $mod1+D9 someCommand
 
 startup command "some list of parameters"
+
+bind $mod1+P kill

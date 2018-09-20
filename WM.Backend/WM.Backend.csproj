@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -39,6 +40,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Desktop.cs" />
@@ -58,15 +60,14 @@
       <Project>{4738f0ca-8469-5357-2791-49cc7933000a}</Project>
       <Name>Gma.UserActivityMonitor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WM.Bar\WM.Bar.csproj">
+      <Project>{84695357-2791-49cc-845a-7933000a36e6}</Project>
+      <Name>WM.Bar</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WM.Utils\WM.Utils.csproj">
       <Project>{6284e342-22d1-4c54-855f-d43ffc0035e9}</Project>
       <Name>WM.Utils</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ricerc">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

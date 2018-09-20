@@ -9,6 +9,12 @@ namespace ConsoleHotKey {
         public int H { get; set; }
         private List<Workspace> ws;
 
+        public Output()
+        {
+            ws = new List<Workspace>();
+            ws.Add(new Workspace(Program.getNextWorkspace()));
+        }
+
         public Workspace getWorkspaceByNum(int i)
         {
             foreach (var curWs in ws)
