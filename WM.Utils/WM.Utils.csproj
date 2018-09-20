@@ -41,6 +41,7 @@
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,6 +56,7 @@
     <Compile Include="Tasks\Binding.cs" />
     <Compile Include="Tasks\StartupTask.cs" />
     <Compile Include="Tasks\WMTask.cs" />
+    <Compile Include="WindowsTaskBarManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

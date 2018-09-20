@@ -17,7 +17,6 @@ namespace WM.Bar
     {
         public List<Workspace> WorkSpaces { get; set; }
         public List<StatusBarItem> StatusBarItems { get; set; }
-        public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
         public MainWindow()
         {
@@ -26,10 +25,6 @@ namespace WM.Bar
             Width = SystemParameters.PrimaryScreenWidth;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
-
-            Height = 30;
-            Top = 0;
-            Left = 0;
             Background = ConfigurationManager.BackgroundColor;
 
             InitializeComponent();
