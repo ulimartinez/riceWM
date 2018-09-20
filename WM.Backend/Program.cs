@@ -35,6 +35,22 @@ namespace ConsoleHotKey{
         
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+        
+        [DllImport("user32.dll")]
+        static extern IntPtr GetFocus();
+        
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+        
+        [DllImport("user32.dll")]
+        static extern bool CloseWindow(IntPtr hWnd);
+        
+        [DllImport("kernel32.dll", SetLastError=true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
+        
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool GetExitCodeProcess(IntPtr hProcess, out uint ExitCode);
         #endregion
         
         #region vars
@@ -43,6 +59,7 @@ namespace ConsoleHotKey{
         private static string config = "ricerc";
         private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
         private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
+        private static Dictionary<Int64, int> _killMap = new Dictionary<Int64, int>();
         private static IntPtr _bar { get; set; }
         public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
@@ -82,6 +99,10 @@ namespace ConsoleHotKey{
                     Int32.TryParse(binding.Parameters, out wsNum);
                     _workspaceMap.Add(hotKeyId, wsNum);
                 }
+                else if (binding.Command.ToLower() == "kill")
+                {
+                    _killMap.Add(hotKeyId, 0);
+                }
             }
         }
         static void Main(string[] args) {
@@ -98,12 +119,32 @@ namespace ConsoleHotKey{
             loadKeybinds();
            
             POINT pt = new POINT();
-            pt.x = 1;
-            pt.y = 1;
+            pt.x = 50;
+            pt.y = 50;
             IntPtr hmon = MonitorFromPoint(pt, MonitorOptions.MONITOR_DEFAULTTONEAREST);
+            string textA = WindowFinder.GetWindowTextA(hmon);
             SetFocus(hmon);
             HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
             Console.ReadLine();
+        }
+
+        //Debugging purposes
+        static void printFocus()
+        {
+            IntPtr fhwn = GetFocus();
+            Console.Out.WriteLine("fhwn = {0}", fhwn);
+            string title = WindowFinder.GetWindowTextA(fhwn);
+            Console.Out.WriteLine("title = {0}", title);
+            IntPtr forhwm = GetForegroundWindow();
+            Console.Out.WriteLine("forhwm = {0}", forhwm);
+            string forTitle = WindowFinder.GetWindowTextA(forhwm);
+            Console.Out.WriteLine("forTitle = {0}", forTitle);
+        }
+        
+        static void CloseFocusWindow()
+        {
+            IntPtr forhwm = GetForegroundWindow();
+            SendMessage(forhwm, 0x0112, (IntPtr)WindowsMessage.WM_CLOSE, IntPtr.Zero);
         }
 
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
@@ -124,6 +165,12 @@ namespace ConsoleHotKey{
             foreach (var ws in _workspaceMap) {
                 if (ws.Key == e.id) {
                     SendMessage(_bar, 0x165, (IntPtr)ws.Value, (IntPtr)ws.Value);
+                }
+            }
+            foreach (var ws in _killMap) {
+                if (ws.Key == e.id) {
+                    printFocus();
+                    CloseFocusWindow();
                 }
             }
         }

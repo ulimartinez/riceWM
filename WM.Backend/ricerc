@@ -24,4 +24,6 @@ bind Win+D9 workspace 9
 bind $mod+D9 someCommand
 bind $mod1+D9 someCommand
 
+bind Win+P kill
+
 startup command "some list of parameters"
