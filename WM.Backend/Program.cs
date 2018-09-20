@@ -54,6 +54,7 @@ namespace ConsoleHotKey{
         #endregion
         
         #region vars
+        public List<Output> outputs = new List<Output>();
         public static List<Keys> keysDown = new List<Keys>();
         private static Desktop _desk { get; set; }
         private static string config = "ricerc";
@@ -106,7 +107,10 @@ namespace ConsoleHotKey{
             }
         }
         static void Main(string[] args) {
-            foreach(var screen in Screen.AllScreens) {
+            foreach(var screen in Screen.AllScreens)
+            {
+                Output tmp = new Output
+                    {X = screen.WorkingArea.X, Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height};
                 // For each screen, add the screen properties to a list box.
                 Console.Out.WriteLine("Device Name: " + screen.DeviceName);
                 Console.Out.WriteLine("Bounds: " + screen.Bounds);
