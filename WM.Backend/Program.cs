@@ -144,7 +144,7 @@ namespace ConsoleHotKey{
         static void CloseFocusWindow()
         {
             IntPtr forhwm = GetForegroundWindow();
-            SendMessage(forhwm, 0x0112, (IntPtr)WindowsMessage.WM_CLOSE, IntPtr.Zero);
+            SendMessage(forhwm, (int)WindowsMessage.WM_SYSCOMMAND, (IntPtr)SysCommands.SC_CLOSE, IntPtr.Zero);
         }
 
         static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
