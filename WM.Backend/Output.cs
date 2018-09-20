@@ -3,10 +3,22 @@ using System.Collections.Generic;
 
 namespace ConsoleHotKey {
     public class Output {
-        private int X { get; set; }
-        private int Y { get; set; }
-        private int W { get; set; }
-        private int H { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int W { get; set; }
+        public int H { get; set; }
         private List<Workspace> ws;
+
+        public Workspace getWorkspaceByNum(int i)
+        {
+            foreach (var curWs in ws)
+            {
+                if (i == curWs.num)
+                {
+                    return curWs;
+                }
+            }
+            return null;
+        }
     }
 }
