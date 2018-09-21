@@ -17,25 +17,19 @@ namespace WM.Bar
     {
         public List<Workspace> WorkSpaces { get; set; }
         public List<StatusBarItem> StatusBarItems { get; set; }
-        public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
         public MainWindow()
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
             WindowStyle = WindowStyle.None;
-            Width = SystemParameters.PrimaryScreenWidth;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
-
-            Height = 30;
-            Top = 0;
-            Left = 0;
             Background = ConfigurationManager.BackgroundColor;
 
             InitializeComponent();
 
             InitialWorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
-            WorkSpaces = new List<Workspace>() { new Workspace(0, InitialWorkspaceLabel, null, true) };
+            WorkSpaces = new List<Workspace> { new Workspace(0, InitialWorkspaceLabel, null, true) };
             StatusBarItems = new List<StatusBarItem>();
             for (var i = 0; i < 8; i++)
             {

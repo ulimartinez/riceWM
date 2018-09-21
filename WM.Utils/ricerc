@@ -4,6 +4,8 @@ set $backgroundColor #23232D
 set $backgroundColorLighter #2c2c36
 set $accentColor #7289da
 set $foregroundColor #eae5e5
+set $barPosition top
+set $barSize 30
 
 #=============== Run programs =================#
 bind Win+PrintScreen run "C:\Windows\System32\SnippingTool.exe"
