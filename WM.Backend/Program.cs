@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using WM.Utils;
+using WM.Utils.Structs;
 using Binding = WM.Utils.Binding;
 
 
@@ -21,8 +24,8 @@ namespace ConsoleHotKey{
             MONITOR_DEFAULTTONEAREST = 0x00000002
         }
         struct POINT {
-            public short x;
-            public short y;
+            public int x;
+            public int y;
         }
         #endregion
 
@@ -51,6 +54,9 @@ namespace ConsoleHotKey{
         
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool GetExitCodeProcess(IntPtr hProcess, out uint ExitCode);
+        
+        [DllImport("user32.dll", SetLastError=true)]
+        static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
         #endregion
         
         #region vars
@@ -72,7 +78,7 @@ namespace ConsoleHotKey{
             foreach(var screen in Screen.AllScreens)
             {
                 Output tmp = new Output
-                    {X = screen.WorkingArea.X, Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height};
+                    {X = screen.WorkingArea.X + int.Parse(ConfigurationManager.Variables["$barSize"]), Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height - int.Parse(ConfigurationManager.Variables["$barSize"])};
                 tmp.ws[0].tree.Root.window.setSize(screen.WorkingArea.X, screen.WorkingArea.Y,
                     screen.WorkingArea.Width, screen.WorkingArea.Height);
                 outputs.Add(tmp);
@@ -85,6 +91,20 @@ namespace ConsoleHotKey{
             SetFocus(hmon);
             HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
             Console.ReadLine();
+        }
+
+        private static Output getOutputFromPoint(POINT pt)
+        {
+            Output container = null;
+            foreach (var outp in outputs)
+            {
+                if (outp.cointainsPoint(pt.x, pt.y))
+                {
+                    container = outp;
+                }
+            }
+
+            return container;
         }
 
         public static int getNextWorkspace()
@@ -170,18 +190,52 @@ namespace ConsoleHotKey{
             SendMessage(forhwm, (int)WindowsMessage.WM_SYSCOMMAND, (IntPtr)SysCommands.SC_CLOSE, IntPtr.Zero);
         }
 
-        static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
+        private static POINT getFocusCenter()
+        {
+            IntPtr focus = GetForegroundWindow();
+            RECT rect;
+            GetWindowRect(focus, out rect);
+            POINT pt = new POINT();
+            pt.y = (rect.Left + rect.Right) / 2;
+            pt.x = (rect.Top + rect.Bottom) / 2;
+
+            return pt;
+        }
+
+        static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e)
+        {
+            Process runProcess = null;
+            if (_runMap.ContainsKey(e.id))
+            {
+                runProcess = new Process();
+            }
             foreach (var hotKey in _runMap) {
                 if (hotKey.Key == e.id) {
                     if (hotKey.Value.Contains(' ')) {
                         string[] cmdaArgs = hotKey.Value.Split(' ');
-                        System.Diagnostics.Process.Start(cmdaArgs[0], cmdaArgs[1]);
-                        return;
+                        runProcess.StartInfo = new ProcessStartInfo(cmdaArgs[0]);
+                        runProcess.StartInfo.Arguments = cmdaArgs[1];
+                        //System.Diagnostics.Process.Start(cmdaArgs[0], cmdaArgs[1]);
                     }
                     else {
-                        System.Diagnostics.Process.Start(hotKey.Value);
-                        return;
+                        runProcess.StartInfo = new ProcessStartInfo(hotKey.Value);
+//                        System.Diagnostics.Process.Start(hotKey.Value);
                     }
+                    Output current = getOutputFromPoint(getFocusCenter());
+                    Console.Out.WriteLine("current.Y = {0}", current.Y);
+                    Console.Out.WriteLine("current.X = {0}", current.X);
+                    
+                    runProcess.Start();
+                    runProcess.WaitForInputIdle();
+                    IntPtr runHanmdle = IntPtr.Zero;
+                    while (runHanmdle == IntPtr.Zero)
+                    {
+                        runHanmdle = runProcess.MainWindowHandle;
+                        Thread.Sleep(100);
+                    }
+                    Console.Out.WriteLine("runHanmdle = {0}", runHanmdle);
+                    current.ws[0].tree.Root.window.handle = runHanmdle;
+                    current.ws[0].tree.Root.window.render();
                 }
             }
 

@@ -26,5 +26,10 @@ namespace ConsoleHotKey {
             }
             return null;
         }
+
+        public bool cointainsPoint(int x, int y)
+        {
+            return x >= X && x <= X + W && y >= Y && y <= Y + H;
+        }
     }
 }

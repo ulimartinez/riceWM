@@ -56,6 +56,7 @@
     <Compile Include="Enums\WindowsMessage.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structs\RECT.cs" />
     <Compile Include="Tasks\Binding.cs" />
     <Compile Include="Tasks\StartupTask.cs" />
     <Compile Include="Tasks\WMTask.cs" />
