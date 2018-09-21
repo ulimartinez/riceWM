@@ -264,5 +264,7 @@ namespace ConsoleHotKey
 		WM_USER                        = 0x0400,
 
 		WM_REFLECT                     = WM_USER + 0x1C00,
+		
+		WM_BAR_WS						   = 0x165
 	}
 }

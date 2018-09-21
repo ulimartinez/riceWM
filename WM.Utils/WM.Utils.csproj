@@ -51,6 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationManager.cs" />
+    <Compile Include="Enums\SetWindowPosFlags.cs" />
+    <Compile Include="Enums\SysCommands.cs" />
+    <Compile Include="Enums\WindowsMessage.cs" />
     <Compile Include="GlobalConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tasks\Binding.cs" />

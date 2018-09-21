@@ -69,11 +69,12 @@ namespace ConsoleHotKey{
 
         [STAThread]
         static void Main(string[] args) {
-            workspaces.Add(0);
             foreach(var screen in Screen.AllScreens)
             {
                 Output tmp = new Output
                     {X = screen.WorkingArea.X, Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height};
+                tmp.ws[0].tree.Root.window.setSize(screen.WorkingArea.X, screen.WorkingArea.Y,
+                    screen.WorkingArea.Width, screen.WorkingArea.Height);
                 outputs.Add(tmp);
             }
 
@@ -186,7 +187,7 @@ namespace ConsoleHotKey{
 
             foreach (var ws in _workspaceMap) {
                 if (ws.Key == e.id) {
-                    SendMessage(_bar, 0x165, (IntPtr)ws.Value, (IntPtr)ws.Value);
+                    SendMessage(_bar, (int) WindowsMessage.WM_BAR_WS, (IntPtr)ws.Value, (IntPtr)ws.Value);
                 }
             }
             foreach (var ws in _killMap) {

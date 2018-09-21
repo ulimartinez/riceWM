@@ -28,7 +28,7 @@ namespace ConsoleHotKey
 
         public Window addAfter(IntPtr handle)
         {
-            return addAfterHelper(this.Root, handle);
+            return addAfterHelper(Root, handle);
         }
         private Window addAfterHelper(Node root, IntPtr focusHandle)
         {
@@ -40,8 +40,10 @@ namespace ConsoleHotKey
                     root.hasWindow = false;
                     Window cur = root.window;
                     root.left = new Node();
+                    root.left.hasWindow = true;
                     root.left.window.handle = cur.handle;
                     root.right = new Node();
+                    root.right.hasWindow = true;
 
                     if (root.vsplit)
                     {
@@ -78,7 +80,7 @@ namespace ConsoleHotKey
                 }
                 else
                 {
-                    Window fromChild;
+                    Window fromChild = null;
                     fromChild = addAfterHelper(root.left, focusHandle);
                     if (fromChild == null)
                     {

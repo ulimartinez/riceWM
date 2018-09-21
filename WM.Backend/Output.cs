@@ -7,7 +7,7 @@ namespace ConsoleHotKey {
         public int Y { get; set; }
         public int W { get; set; }
         public int H { get; set; }
-        private List<Workspace> ws;
+        public List<Workspace> ws;
 
         public Output()
         {
