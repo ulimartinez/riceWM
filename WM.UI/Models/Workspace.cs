@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using WM.Utils;
 
-namespace WM.Bar
+namespace WM.UI.Models
 {
     public class Workspace
     {

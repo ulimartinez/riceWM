@@ -6,19 +6,20 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using WM.UI.Models;
 using WM.Utils;
 
-namespace WM.Bar
+namespace WM.UI.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class Bar
     {
         public List<Workspace> WorkSpaces { get; set; }
         public List<StatusBarItem> StatusBarItems { get; set; }
 
-        public MainWindow()
+        public Bar()
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
             WindowStyle = WindowStyle.None;

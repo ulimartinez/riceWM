@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WM.Bar.Properties
+namespace WM.UI.Properties
 {
 
 
