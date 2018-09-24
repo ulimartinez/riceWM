@@ -9,10 +9,14 @@ namespace ConsoleHotKey {
         public int H { get; set; }
         public List<Workspace> ws;
 
-        public Output()
+        public Output(int x, int y, int w, int h)
         {
             ws = new List<Workspace>();
-            ws.Add(new Workspace(Program.getNextWorkspace()));
+            this.X = x;
+            this.Y = y;
+            this.W = w;
+            this.H = h;
+            ws.Add(new Workspace(Program.getNextWorkspace(), X, Y, W, H));
         }
 
         public Workspace getWorkspaceByNum(int i)

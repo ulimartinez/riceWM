@@ -15,15 +15,11 @@ namespace ConsoleHotKey
 
     public class Tree
     {
-        public Node Root;
+        public readonly Node Root;
 
-        public Tree(Node root)
+        public Tree(int x, int y, int w, int h)
         {
-            this.Root = root;
-        }
-        public Tree()
-        {
-            this.Root = new Node();
+            Root = new Node {window = {X = x, Y = y, W = w, H = h}, hasWindow = false};
         }
 
         public Window addAfter(IntPtr handle)
@@ -111,6 +107,17 @@ namespace ConsoleHotKey
             }
 
             return root;
+        }
+
+        public void render(Node root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+            root.window.render();
+            render(root.left);
+            render(root.right);
         }
 
         public void traverse(Node root)

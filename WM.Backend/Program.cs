@@ -23,7 +23,8 @@ namespace ConsoleHotKey{
             MONITOR_DEFAULTTOPRIMARY = 0x00000001,
             MONITOR_DEFAULTTONEAREST = 0x00000002
         }
-        struct POINT {
+
+        internal struct POINT {
             public int x;
             public int y;
         }
@@ -57,6 +58,9 @@ namespace ConsoleHotKey{
         
         [DllImport("user32.dll", SetLastError=true)]
         static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+        
+        [DllImport("user32.dll")]
+        public static extern bool GetCursorPos(out POINT lpPoint);
         #endregion
         
         #region vars
@@ -77,10 +81,12 @@ namespace ConsoleHotKey{
         static void Main(string[] args) {
             foreach(var screen in Screen.AllScreens)
             {
-                Output tmp = new Output
-                    {X = screen.WorkingArea.X + int.Parse(ConfigurationManager.Variables["$barSize"]), Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height - int.Parse(ConfigurationManager.Variables["$barSize"])};
-                tmp.ws[0].tree.Root.window.setSize(screen.WorkingArea.X, screen.WorkingArea.Y,
-                    screen.WorkingArea.Width, screen.WorkingArea.Height);
+                int barSize = int.Parse(ConfigurationManager.Variables["$barSize"]);
+                Output tmp = new Output(screen.WorkingArea.X,
+                    barSize + screen.WorkingArea.Y,
+                    screen.WorkingArea.Width,
+                    screen.WorkingArea.Height - barSize);
+                
                 outputs.Add(tmp);
             }
 
@@ -105,6 +111,16 @@ namespace ConsoleHotKey{
             }
 
             return container;
+        }
+        
+        public static POINT GetCursorPosition()
+        {
+            POINT lpPoint;
+            GetCursorPos(out lpPoint);
+            //bool success = User32.GetCursorPos(out lpPoint);
+            // if (!success)
+
+            return lpPoint;
         }
 
         public static int getNextWorkspace()
@@ -221,7 +237,11 @@ namespace ConsoleHotKey{
                         runProcess.StartInfo = new ProcessStartInfo(hotKey.Value);
 //                        System.Diagnostics.Process.Start(hotKey.Value);
                     }
-                    Output current = getOutputFromPoint(getFocusCenter());
+
+                    POINT mpoint = GetCursorPosition();
+                    Console.Out.WriteLine("mpoint.x = {0}", mpoint.x);
+                    Console.Out.WriteLine("mpoint.y = {0}", mpoint.y);
+                    Output current = getOutputFromPoint(mpoint);
                     Console.Out.WriteLine("current.Y = {0}", current.Y);
                     Console.Out.WriteLine("current.X = {0}", current.X);
                     
@@ -231,9 +251,8 @@ namespace ConsoleHotKey{
                     while (runHanmdle == IntPtr.Zero)
                     {
                         runHanmdle = runProcess.MainWindowHandle;
-                        Thread.Sleep(100);
+                        Thread.Sleep(10);
                     }
-                    Console.Out.WriteLine("runHanmdle = {0}", runHanmdle);
                     current.ws[0].tree.Root.window.handle = runHanmdle;
                     current.ws[0].tree.Root.window.render();
                 }
