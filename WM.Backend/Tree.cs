@@ -11,6 +11,7 @@ namespace ConsoleHotKey
         public Node right;
         public bool vsplit { get; set; }
         public bool hasWindow { get; set; }
+        public bool isRoot { get; set; }
     }
 
     public class Tree
@@ -19,115 +20,230 @@ namespace ConsoleHotKey
 
         public Tree(int x, int y, int w, int h)
         {
-            Root = new Node {window = {X = x, Y = y, W = w, H = h}, hasWindow = false};
+            Root = new Node {window = {X = x, Y = y, W = w, H = h}, hasWindow = false, isRoot = true, vsplit = true};
         }
 
-        public Window addAfter(IntPtr handle)
+        public void addAfter(IntPtr focus_handle, IntPtr new_handle)
         {
-            return addAfterHelper(Root, handle);
+            if (contains_handle(Root, focus_handle))
+            {
+                addAfterHelper(Root, focus_handle, new_handle);
+            }
+            else
+            {
+                addHelper(Root, new_handle);
+            }
         }
-        private Window addAfterHelper(Node root, IntPtr focusHandle)
+
+        private void addHelper(Node root, IntPtr handle)
+        {
+            if (root != null)
+            {
+                if (root.hasWindow)
+                {
+                    if (root.left == null && root.right == null)
+                    {
+                        //split into two
+                        //root.hasWindow = false;
+                        Window cur = root.window;
+                        root.left = new Node();
+                        root.left.hasWindow = true;
+                        root.left.window.handle = cur.handle;
+                        root.right = new Node();
+                        root.right.window.handle = handle;
+                        root.right.hasWindow = true;
+
+                        if (root.vsplit)
+                        {
+                            //split vertically
+                            root.left.window.X = cur.X;
+                            root.right.window.X = cur.X + cur.W / 2;
+
+                            root.left.window.Y = cur.Y;
+                            root.right.window.Y = cur.Y;
+
+                            root.left.window.W = cur.W / 2;
+                            root.right.window.W = cur.W / 2;
+
+                            root.left.window.H = cur.H;
+                            root.right.window.H = cur.H;
+                        }
+                        else
+                        {
+                            //split horizontally
+                            root.left.window.X = cur.X;
+                            root.right.window.X = cur.X;
+
+                            root.left.window.Y = cur.Y;
+                            root.right.window.Y = cur.Y + cur.H/2;
+
+                            root.left.window.W = cur.W;
+                            root.right.window.W = cur.W;
+
+                            root.left.window.H = cur.H / 2;
+                            root.right.window.H = cur.H / 2;
+                        }
+                    }
+                    else if(root.right == null)
+                    {
+                        addHelper(root.left, handle);
+                    }
+                    else if (root.left == null)
+                    {
+                        addHelper(root.right, handle);
+                    }
+                    else
+                    {
+                        addHelper(root.left, handle);
+                    }
+                }
+                else
+                {
+                    root.hasWindow = true;
+                    root.window.handle = handle;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        private bool addAfterHelper(Node root, IntPtr focusHandle, IntPtr new_handle)
         {
             if (root != null)
             {
                 if (root.window.handle == focusHandle)
                 {
-                    //split into two
-                    root.hasWindow = false;
-                    Window cur = root.window;
-                    root.left = new Node();
-                    root.left.hasWindow = true;
-                    root.left.window.handle = cur.handle;
-                    root.right = new Node();
-                    root.right.hasWindow = true;
-
-                    if (root.vsplit)
+                    if (root.left == null && root.right == null)
                     {
-                        //split vertically
-                        root.left.window.X = cur.X;
-                        root.right.window.X = cur.X + cur.W / 2;
+                        //split into two
+                        //root.hasWindow = false;
+                        Window cur = root.window;
+                        root.left = new Node();
+                        root.left.hasWindow = true;
+                        root.left.window.handle = cur.handle;
+                        root.right = new Node();
+                        root.right.hasWindow = true;
+                        root.right.window.handle = new_handle;
 
-                        root.left.window.Y = cur.Y;
-                        root.right.window.Y = cur.Y;
+                        if (root.vsplit)
+                        {
+                            //split vertically
+                            root.left.window.X = cur.X;
+                            root.right.window.X = cur.X + cur.W / 2;
 
-                        root.left.window.W = cur.W / 2;
-                        root.right.window.W = cur.W / 2;
+                            root.left.window.Y = cur.Y;
+                            root.right.window.Y = cur.Y;
 
-                        root.left.window.H = cur.H;
-                        root.right.window.H = cur.H;
+                            root.left.window.W = cur.W / 2;
+                            root.right.window.W = cur.W / 2;
+
+                            root.left.window.H = cur.H;
+                            root.right.window.H = cur.H;
+                        }
+                        else
+                        {
+                            //split horizontally
+                            root.left.window.X = cur.X;
+                            root.right.window.X = cur.X;
+
+                            root.left.window.Y = cur.Y;
+                            root.right.window.Y = cur.Y + cur.H/2;
+
+                            root.left.window.W = cur.W;
+                            root.right.window.W = cur.W;
+
+                            root.left.window.H = cur.H / 2;
+                            root.right.window.H = cur.H / 2;
+                        }
+                    }
+                    else if(root.right == null)
+                    {
+                        addAfterHelper(root.left, focusHandle, new_handle);
+                    }
+                    else if (root.left == null)
+                    {
+                        addAfterHelper(root.right, focusHandle, new_handle);
                     }
                     else
                     {
-                        //split horizontally
-                        root.left.window.X = cur.X;
-                        root.right.window.X = cur.X;
-
-                        root.left.window.Y = cur.Y;
-                        root.right.window.Y = cur.Y + cur.H/2;
-
-                        root.left.window.W = cur.W;
-                        root.right.window.W = cur.W;
-
-                        root.left.window.H = cur.H / 2;
-                        root.right.window.H = cur.H / 2;
+                        addAfterHelper(root.left, focusHandle, new_handle);
                     }
+                    
 
-                    return root.right.window;
+                    return true;
                 }
                 else
                 {
-                    Window fromChild = null;
-                    fromChild = addAfterHelper(root.left, focusHandle);
-                    if (fromChild == null)
+                    bool fromChild = false;
+                    fromChild = addAfterHelper(root.left, focusHandle, new_handle);
+                    if (!fromChild)
                     {
-                        fromChild = addAfterHelper(root.right, focusHandle);                    
+                        fromChild = addAfterHelper(root.right, focusHandle, new_handle);                    
                     }
                     return fromChild;
                 }
             }
             else
             {
-                return null;
+                return false;
             }
             
         }
-        public Node insert(Node root, Window window)
+
+        private bool contains_handle(Node root, IntPtr handle)
         {
             if (root == null)
             {
-                root = new Node{ hasWindow = true};
-                root.window = window;
+                return false;
+            }
+            if (root.window.handle == handle)
+            {
+                return true;
             }
             else
             {
-                if (root.left != null)
-                {
-                    
-                }
+                return contains_handle(root.left, handle) || contains_handle(root.right, handle);
             }
-
-            return root;
         }
 
-        public void render(Node root)
+        public void setVsplit(IntPtr focused, bool vsplit)
+        {
+            setVsplitHelper(Root, focused, vsplit);
+        }
+
+        private void setVsplitHelper(Node root, IntPtr fhandle, bool vsplit)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            if (root.window.handle == fhandle)
+            {
+                root.vsplit = vsplit;
+            }
+            else
+            {
+                setVsplitHelper(root.left, fhandle, vsplit);
+                setVsplitHelper(root.right, fhandle, vsplit);
+            }
+        }
+
+        public void render()
+        {
+            renderHelper(Root);
+        }
+
+        private void renderHelper(Node root)
         {
             if (root == null)
             {
                 return;
             }
             root.window.render();
-            render(root.left);
-            render(root.right);
-        }
-
-        public void traverse(Node root)
-        {
-            if (root == null)
-            {
-                return;
-            }
-            traverse(root.left);
-            traverse(root.right);
+            renderHelper(root.left);
+            renderHelper(root.right);
         }
 
         public void swapChildren(Node root)

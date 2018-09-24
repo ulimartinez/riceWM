@@ -29,7 +29,10 @@ namespace ConsoleHotKey
 
         public void render()
         {
-            SetWindowPos(handle, (IntPtr) SpecialWindowHandles.HWND_TOP, X, Y, W, H, SetWindowPosFlags.SWP_SHOWWINDOW);
+            if (handle != IntPtr.Zero)
+            {
+                SetWindowPos(handle, (IntPtr) SpecialWindowHandles.HWND_TOP, X, Y, W, H, SetWindowPosFlags.SWP_SHOWWINDOW);                
+            }
         }
 
         public void setSize(int workingAreaX, int workingAreaY, int workingAreaWidth, int workingAreaHeight)

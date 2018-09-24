@@ -72,6 +72,7 @@ namespace ConsoleHotKey{
         private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
         private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
         private static Dictionary<Int64, int> _killMap = new Dictionary<Int64, int>();
+        private static Dictionary<Int64, bool> _splitMap = new Dictionary<Int64, bool>();
         private static IntPtr _bar { get; set; }
         public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
@@ -93,8 +94,6 @@ namespace ConsoleHotKey{
             _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
             loadKeybinds();
            
-            IntPtr hmon = (IntPtr) 67552;
-            SetFocus(hmon);
             HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
             Console.ReadLine();
         }
@@ -184,6 +183,12 @@ namespace ConsoleHotKey{
                 {
                     _killMap.Add(hotKeyId, 0);
                 }
+                else if (binding.Command.ToLower() == "split")
+                {
+                    bool isVertical = binding.Parameters.ToLower().Contains("v");
+                    Console.Out.WriteLine("parameters for split = {0}", binding.Parameters);
+                    _splitMap.Add(hotKeyId, isVertical);
+                }
             }
         }
         
@@ -238,12 +243,15 @@ namespace ConsoleHotKey{
 //                        System.Diagnostics.Process.Start(hotKey.Value);
                     }
 
+                    IntPtr focus_handle = GetForegroundWindow();
                     POINT mpoint = GetCursorPosition();
                     Console.Out.WriteLine("mpoint.x = {0}", mpoint.x);
                     Console.Out.WriteLine("mpoint.y = {0}", mpoint.y);
                     Output current = getOutputFromPoint(mpoint);
                     Console.Out.WriteLine("current.Y = {0}", current.Y);
                     Console.Out.WriteLine("current.X = {0}", current.X);
+                    Console.Out.WriteLine("current.W = {0}", current.W);
+                    Console.Out.WriteLine("current.H = {0}", current.H);
                     
                     runProcess.Start();
                     runProcess.WaitForInputIdle();
@@ -253,8 +261,10 @@ namespace ConsoleHotKey{
                         runHanmdle = runProcess.MainWindowHandle;
                         Thread.Sleep(10);
                     }
-                    current.ws[0].tree.Root.window.handle = runHanmdle;
-                    current.ws[0].tree.Root.window.render();
+                    current.ws[0].tree.addAfter(focus_handle, runHanmdle);
+                    current.ws[0].tree.render();
+//                    current.ws[0].tree.Root.window.handle = runHanmdle;
+//                    current.ws[0].tree.Root.window.render();
                 }
             }
 
@@ -267,6 +277,17 @@ namespace ConsoleHotKey{
                 if (ws.Key == e.id) {
                     printFocus();
                     CloseFocusWindow();
+                }
+            }
+
+            foreach (var split in _splitMap)
+            {
+                if (split.Key == e.id)
+                {
+                    POINT mpoint = GetCursorPosition();
+                    Output current = getOutputFromPoint(mpoint);
+                    IntPtr focus = GetForegroundWindow();
+                    current.ws[0].tree.setVsplit(focus, split.Value);                  
                 }
             }
         }
