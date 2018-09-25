@@ -15,27 +15,29 @@ namespace WM.Bar
 
 		private void App_OnStartup(object sender, StartupEventArgs e)
 		{
-			AppDomain.CurrentDomain.ProcessExit += (OnProcessExit);
+			AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 			WindowsTaskBarManager.Hide();
+			
+			CreateWmBars();
 
+		}
+
+		private void CreateWmBars()
+		{
 			foreach (var screen in Screen.AllScreens)
 			{
 				var x = screen.Bounds.Left;
 				var y = _barPosition == "top" ? screen.Bounds.Top : screen.Bounds.Bottom - _barSize;
 
-				var bar = new MainWindow {Left = x, Top = y, Height = _barSize};
+				var bar = new MainWindow {Left = x, Top = y, Height = _barSize, Width = screen.Bounds.Width};
 				bar.Show();
 
 				_wmBars.Add(bar);
 			}
+			
 		}
 
 		private static void OnProcessExit(object sender, EventArgs e)
-		{
-			WindowsTaskBarManager.Show();
-		}
-
-		private void App_OnExit(object sender, ExitEventArgs e)
 		{
 			WindowsTaskBarManager.Show();
 		}

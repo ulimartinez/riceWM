@@ -22,7 +22,6 @@ namespace WM.Bar
         {
             WindowStartupLocation = WindowStartupLocation.Manual;
             WindowStyle = WindowStyle.None;
-            Width = SystemParameters.PrimaryScreenWidth;
             ResizeMode = ResizeMode.NoResize;
             Topmost = true;
             Background = ConfigurationManager.BackgroundColor;
@@ -30,7 +29,7 @@ namespace WM.Bar
             InitializeComponent();
 
             InitialWorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
-            WorkSpaces = new List<Workspace>() { new Workspace(0, InitialWorkspaceLabel, null, true) };
+            WorkSpaces = new List<Workspace> { new Workspace(0, InitialWorkspaceLabel, null, true) };
             StatusBarItems = new List<StatusBarItem>();
             for (var i = 0; i < 8; i++)
             {
