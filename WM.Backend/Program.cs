@@ -245,13 +245,7 @@ namespace ConsoleHotKey{
 
                     IntPtr focus_handle = GetForegroundWindow();
                     POINT mpoint = GetCursorPosition();
-                    Console.Out.WriteLine("mpoint.x = {0}", mpoint.x);
-                    Console.Out.WriteLine("mpoint.y = {0}", mpoint.y);
                     Output current = getOutputFromPoint(mpoint);
-                    Console.Out.WriteLine("current.Y = {0}", current.Y);
-                    Console.Out.WriteLine("current.X = {0}", current.X);
-                    Console.Out.WriteLine("current.W = {0}", current.W);
-                    Console.Out.WriteLine("current.H = {0}", current.H);
                     
                     runProcess.Start();
                     runProcess.WaitForInputIdle();
@@ -275,8 +269,10 @@ namespace ConsoleHotKey{
             }
             foreach (var ws in _killMap) {
                 if (ws.Key == e.id) {
-                    printFocus();
-                    CloseFocusWindow();
+                    POINT mpoint = GetCursorPosition();
+                    Output current = getOutputFromPoint(mpoint);
+                    IntPtr focus = GetForegroundWindow();
+                    current.ws[0].tree.deleteNode(focus);
                 }
             }
 

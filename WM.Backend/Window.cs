@@ -24,6 +24,7 @@ namespace ConsoleHotKey
             if (handle != null)
             {
                 SendMessage(handle, (int) WindowsMessage.WM_SYSCOMMAND, (IntPtr) SysCommands.SC_CLOSE, IntPtr.Zero);                
+                handle = IntPtr.Zero;
             }
         }
 
