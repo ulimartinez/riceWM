@@ -213,7 +213,7 @@ namespace ConsoleHotKey
             if (root.right.window.handle == delHandle)
             {
                 //same as above
-                fixNodeSize(root.right, cur.X, cur.Y, cur.W, cur.H);
+                fixNodeSize(root.left, cur.X, cur.Y, cur.W, cur.H);
                 root.right.window.destroy();
                 return root.left;
             }
