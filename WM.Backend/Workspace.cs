@@ -5,9 +5,9 @@ namespace ConsoleHotKey
         public int num { get; set; }
         public Tree tree;
 
-        public Workspace(int num)
+        public Workspace(int num, int X, int Y, int W, int H)
         {
-            tree = new Tree();
+            this.tree = new Tree(X, Y, W, H);
             this.num = num;
         }
     }

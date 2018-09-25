@@ -7,7 +7,17 @@ namespace ConsoleHotKey {
         public int Y { get; set; }
         public int W { get; set; }
         public int H { get; set; }
-        private List<Workspace> ws;
+        public List<Workspace> ws;
+
+        public Output(int x, int y, int w, int h)
+        {
+            ws = new List<Workspace>();
+            this.X = x;
+            this.Y = y;
+            this.W = w;
+            this.H = h;
+            ws.Add(new Workspace(Program.getNextWorkspace(), X, Y, W, H));
+        }
 
         public Workspace getWorkspaceByNum(int i)
         {
@@ -19,6 +29,11 @@ namespace ConsoleHotKey {
                 }
             }
             return null;
+        }
+
+        public bool cointainsPoint(int x, int y)
+        {
+            return x >= X && x <= X + W && y >= Y && y <= Y + H;
         }
     }
 }

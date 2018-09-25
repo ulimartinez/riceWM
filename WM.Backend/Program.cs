@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using WM.Utils;
+using WM.Utils.Structs;
 using Binding = WM.Utils.Binding;
 
+
 namespace ConsoleHotKey{
-    class Program {
-        
+    class Program {        
         #region enums
         enum MonitorOptions : uint
         {
@@ -20,9 +23,10 @@ namespace ConsoleHotKey{
             MONITOR_DEFAULTTOPRIMARY = 0x00000001,
             MONITOR_DEFAULTTONEAREST = 0x00000002
         }
-        struct POINT {
-            public short x;
-            public short y;
+
+        internal struct POINT {
+            public int x;
+            public int y;
         }
         #endregion
 
@@ -51,21 +55,96 @@ namespace ConsoleHotKey{
         
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool GetExitCodeProcess(IntPtr hProcess, out uint ExitCode);
+        
+        [DllImport("user32.dll", SetLastError=true)]
+        static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+        
+        [DllImport("user32.dll")]
+        public static extern bool GetCursorPos(out POINT lpPoint);
         #endregion
         
         #region vars
-        public List<Output> outputs = new List<Output>();
+        public static List<Output> outputs = new List<Output>();
         public static List<Keys> keysDown = new List<Keys>();
+        public static List<int> workspaces = new List<int>();
         private static Desktop _desk { get; set; }
         private static string config = "ricerc";
         private static Dictionary<Int64, string> _runMap = new Dictionary<Int64, string>();
         private static Dictionary<Int64, int> _workspaceMap = new Dictionary<Int64, int>();
         private static Dictionary<Int64, int> _killMap = new Dictionary<Int64, int>();
+        private static Dictionary<Int64, bool> _splitMap = new Dictionary<Int64, bool>();
         private static IntPtr _bar { get; set; }
         public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
 
         #endregion
 
+        [STAThread]
+        static void Main(string[] args) {
+            foreach(var screen in Screen.AllScreens)
+            {
+                int barSize = int.Parse(ConfigurationManager.Variables["$barSize"]);
+                Output tmp = new Output(screen.WorkingArea.X,
+                    barSize + screen.WorkingArea.Y,
+                    screen.WorkingArea.Width,
+                    screen.WorkingArea.Height - barSize);
+                
+                outputs.Add(tmp);
+            }
+
+            _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
+            loadKeybinds();
+           
+            HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
+            Console.ReadLine();
+        }
+
+        private static Output getOutputFromPoint(POINT pt)
+        {
+            Output container = null;
+            foreach (var outp in outputs)
+            {
+                if (outp.cointainsPoint(pt.x, pt.y))
+                {
+                    container = outp;
+                }
+            }
+
+            return container;
+        }
+        
+        public static POINT GetCursorPosition()
+        {
+            POINT lpPoint;
+            GetCursorPos(out lpPoint);
+            //bool success = User32.GetCursorPos(out lpPoint);
+            // if (!success)
+
+            return lpPoint;
+        }
+
+        public static int getNextWorkspace()
+        {
+            int next = 0;
+            if (workspaces.Count == 0)
+            {
+                next = 1;
+                workspaces.Add(next);
+            }
+            else
+            {
+                workspaces.Sort();
+                int len = workspaces.Count;
+                int last = workspaces[len - 1];
+                next = last + 1;
+                workspaces.Add(next);
+            }
+            return next;
+        }
+
+        public void removeWorkspace(int ws)
+        {
+            workspaces.Remove(ws);
+        }
         private static void loadKeybinds()
         {
             List<Binding> bindings = ConfigurationManager.Bindings;
@@ -104,34 +183,15 @@ namespace ConsoleHotKey{
                 {
                     _killMap.Add(hotKeyId, 0);
                 }
+                else if (binding.Command.ToLower() == "split")
+                {
+                    bool isVertical = binding.Parameters.ToLower().Contains("v");
+                    Console.Out.WriteLine("parameters for split = {0}", binding.Parameters);
+                    _splitMap.Add(hotKeyId, isVertical);
+                }
             }
         }
-        static void Main(string[] args) {
-            foreach(var screen in Screen.AllScreens)
-            {
-                Output tmp = new Output
-                    {X = screen.WorkingArea.X, Y = screen.WorkingArea.Y, W = screen.WorkingArea.Width, H = screen.WorkingArea.Height};
-                // For each screen, add the screen properties to a list box.
-                Console.Out.WriteLine("Device Name: " + screen.DeviceName);
-                Console.Out.WriteLine("Bounds: " + screen.Bounds);
-                Console.Out.WriteLine("Type: " + screen.GetType());
-                Console.Out.WriteLine("Working Area: " + screen.WorkingArea);
-                Console.Out.WriteLine("Primary Screen: " + screen.Primary);
-            }
-
-            _bar = WindowFinder.FindWindowClassTitle(null, "riceWM");
-            loadKeybinds();
-           
-            POINT pt = new POINT();
-            pt.x = 50;
-            pt.y = 50;
-            IntPtr hmon = MonitorFromPoint(pt, MonitorOptions.MONITOR_DEFAULTTONEAREST);
-            string textA = WindowFinder.GetWindowTextA(hmon);
-            SetFocus(hmon);
-            HotKeyManager.HotKeyPressed += new EventHandler<HotKeyEventArgs>(HotKeyManager_HotKeyPressed);
-            Console.ReadLine();
-        }
-
+        
         //Debugging purposes
         static void printFocus()
         {
@@ -151,30 +211,79 @@ namespace ConsoleHotKey{
             SendMessage(forhwm, (int)WindowsMessage.WM_SYSCOMMAND, (IntPtr)SysCommands.SC_CLOSE, IntPtr.Zero);
         }
 
-        static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e) {
+        private static POINT getFocusCenter()
+        {
+            IntPtr focus = GetForegroundWindow();
+            RECT rect;
+            GetWindowRect(focus, out rect);
+            POINT pt = new POINT();
+            pt.y = (rect.Left + rect.Right) / 2;
+            pt.x = (rect.Top + rect.Bottom) / 2;
+
+            return pt;
+        }
+
+        static void HotKeyManager_HotKeyPressed(object sender, HotKeyEventArgs e)
+        {
+            Process runProcess = null;
+            if (_runMap.ContainsKey(e.id))
+            {
+                runProcess = new Process();
+            }
             foreach (var hotKey in _runMap) {
                 if (hotKey.Key == e.id) {
                     if (hotKey.Value.Contains(' ')) {
                         string[] cmdaArgs = hotKey.Value.Split(' ');
-                        System.Diagnostics.Process.Start(cmdaArgs[0], cmdaArgs[1]);
-                        return;
+                        runProcess.StartInfo = new ProcessStartInfo(cmdaArgs[0]);
+                        runProcess.StartInfo.Arguments = cmdaArgs[1];
+                        //System.Diagnostics.Process.Start(cmdaArgs[0], cmdaArgs[1]);
                     }
                     else {
-                        System.Diagnostics.Process.Start(hotKey.Value);
-                        return;
+                        runProcess.StartInfo = new ProcessStartInfo(hotKey.Value);
+//                        System.Diagnostics.Process.Start(hotKey.Value);
                     }
+
+                    IntPtr focus_handle = GetForegroundWindow();
+                    POINT mpoint = GetCursorPosition();
+                    Output current = getOutputFromPoint(mpoint);
+                    
+                    runProcess.Start();
+                    runProcess.WaitForInputIdle();
+                    IntPtr runHanmdle = IntPtr.Zero;
+                    while (runHanmdle == IntPtr.Zero)
+                    {
+                        runHanmdle = runProcess.MainWindowHandle;
+                        Thread.Sleep(10);
+                    }
+                    current.ws[0].tree.addAfter(focus_handle, runHanmdle);
+                    current.ws[0].tree.render();
+//                    current.ws[0].tree.Root.window.handle = runHanmdle;
+//                    current.ws[0].tree.Root.window.render();
                 }
             }
 
             foreach (var ws in _workspaceMap) {
                 if (ws.Key == e.id) {
-                    SendMessage(_bar, 0x165, (IntPtr)ws.Value, (IntPtr)ws.Value);
+                    SendMessage(_bar, (int) WindowsMessage.WM_BAR_WS, (IntPtr)ws.Value, (IntPtr)ws.Value);
                 }
             }
             foreach (var ws in _killMap) {
                 if (ws.Key == e.id) {
-                    printFocus();
-                    CloseFocusWindow();
+                    POINT mpoint = GetCursorPosition();
+                    Output current = getOutputFromPoint(mpoint);
+                    IntPtr focus = GetForegroundWindow();
+                    current.ws[0].tree.deleteNode(focus);
+                }
+            }
+
+            foreach (var split in _splitMap)
+            {
+                if (split.Key == e.id)
+                {
+                    POINT mpoint = GetCursorPosition();
+                    Output current = getOutputFromPoint(mpoint);
+                    IntPtr focus = GetForegroundWindow();
+                    current.ws[0].tree.setVsplit(focus, split.Value);                  
                 }
             }
         }
