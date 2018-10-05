@@ -11,83 +11,98 @@ using WM.Utils;
 
 namespace WM.UI.Views
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class Bar
-    {
-        public List<Workspace> WorkSpaces { get; set; }
-        public List<StatusBarItem> StatusBarItems { get; set; }
+	/// <summary>
+	/// Interaction logic for MainWindow.xaml
+	/// </summary>
+	public partial class Bar
+	{
+		public List<Workspace> WorkSpaces { get; set; }
+		public List<StatusBarItem> StatusBarItems { get; set; }
+		private IConfigurationManager _configurationManager;
 
-        public Bar()
-        {
-            WindowStartupLocation = WindowStartupLocation.Manual;
-            WindowStyle = WindowStyle.None;
-            ResizeMode = ResizeMode.NoResize;
-            Topmost = true;
-            Background = ConfigurationManager.BackgroundColor;
+		public Bar()
+		{
+			WorkSpaces = new List<Workspace>();
+			StatusBarItems = new List<StatusBarItem>();
+		}
 
-            InitializeComponent();
+		public void Initialize()
+		{
+			_configurationManager = Program.Bootstrap().GetInstance<IConfigurationManager>();
 
-            InitialWorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
-            WorkSpaces = new List<Workspace> { new Workspace(0, InitialWorkspaceLabel, null, true) };
-            StatusBarItems = new List<StatusBarItem>();
-            for (var i = 0; i < 8; i++)
-            {
-                AddWorkspace();
-            }
+			WindowStartupLocation = WindowStartupLocation.Manual;
+			WindowStyle = WindowStyle.None;
+			ResizeMode = ResizeMode.NoResize;
+			Topmost = true;
+			Background = _configurationManager.BackgroundColor;
 
-            AddStatusBarItem(DateTime.Today.ToString(CultureInfo.InvariantCulture), "");
-        }
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
-            source.AddHook(WndProc);
-        }
+			InitializeComponent();
 
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            // Handle messages...
-            if (msg == 0x165) {
-                SelectWorkspace(WorkSpaces[(int) lParam - 1].WorkspaceLabel);
-            }
-            return IntPtr.Zero;
-        }
+			InitialWorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
+			WorkSpaces = new List<Workspace> {new Workspace(0, InitialWorkspaceLabel, null, true)};
+			StatusBarItems = new List<StatusBarItem>();
+			for (var i = 0; i < 8; i++)
+			{
+				AddWorkspace();
+			}
 
-        public void AddWorkspace()
-        {
-            var newWorkspaceId = WorkSpaces.Last().Id + 1;
-            var newWorkspace = new Workspace(newWorkspaceId, ConfigurationManager.JNumbers[newWorkspaceId], null, false);
-            newWorkspace.WorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
+			AddStatusBarItem(DateTime.Today.ToString(CultureInfo.InvariantCulture), "");
+		}
 
-            WorkSpaces.Add(newWorkspace);
-            WorkSpacesStackPanel.Children.Add(newWorkspace.WorkspaceLabel);
+		protected override void OnSourceInitialized(EventArgs e)
+		{
+			base.OnSourceInitialized(e);
+			HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+			source.AddHook(WndProc);
+		}
 
-            WorkSpacesStackPanel.UpdateLayout();
+		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+		{
+			// Handle messages...
+			if (msg == 0x165)
+			{
+				SelectWorkspace(WorkSpaces[(int) lParam - 1].WorkspaceLabel);
+			}
 
-        }
+			return IntPtr.Zero;
+		}
 
-        public void AddStatusBarItem(string content, string processId)
-        {
-            var statusBarItem = new StatusBarItem(content, processId);
+		public void AddWorkspace()
+		{
+			var newWorkspaceId = WorkSpaces.Last().Id + 1;
+			var newWorkspace = new Workspace(newWorkspaceId, _configurationManager.JNumbers[newWorkspaceId], null, false);
+			newWorkspace.WorkspaceLabel.MouseLeftButtonUp += Workspace_MouseClickUp;
 
-            StatusBarItems.Add(statusBarItem);
-            StatusStackPanel.Children.Add(statusBarItem.StatusBarLabel);
-            StatusStackPanel.UpdateLayout();
-        }
+			WorkSpaces.Add(newWorkspace);
+			WorkSpacesStackPanel.Children.Add(newWorkspace.WorkspaceLabel);
 
-        public void Workspace_MouseClickUp(object sender, MouseEventArgs e) {
-            var label = (Label) sender;
-            SelectWorkspace(label);
-        }
+			WorkSpacesStackPanel.UpdateLayout();
+		}
 
-        private void SelectWorkspace(Label label) {
-            foreach (var workspace in WorkSpaces) {
-                workspace.IsActive = false;
-            }
-            var selectedWorkspace = WorkSpaces.Find(w => w.WorkspaceLabel.Content == label.Content);
-            selectedWorkspace.IsActive = true;
-        }
-    }
+		public void AddStatusBarItem(string content, string processId)
+		{
+			var statusBarItem = new StatusBarItem(content, processId);
+
+			StatusBarItems.Add(statusBarItem);
+			StatusStackPanel.Children.Add(statusBarItem.StatusBarLabel);
+			StatusStackPanel.UpdateLayout();
+		}
+
+		public void Workspace_MouseClickUp(object sender, MouseEventArgs e)
+		{
+			var label = (Label) sender;
+			SelectWorkspace(label);
+		}
+
+		private void SelectWorkspace(Label label)
+		{
+			foreach (var workspace in WorkSpaces)
+			{
+				workspace.IsActive = false;
+			}
+
+			var selectedWorkspace = WorkSpaces.Find(w => w.WorkspaceLabel.Content == label.Content);
+			selectedWorkspace.IsActive = true;
+		}
+	}
 }

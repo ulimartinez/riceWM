@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using SimpleInjector;
+using log4net;
+using WM.UI.ViewModels;
 using WM.UI.Views;
 using WM.Utils;
 
@@ -9,9 +11,8 @@ namespace WM.UI
 {
 	static class Program
 	{
-		public static readonly ConfigurationManager ConfigurationManager = new ConfigurationManager();
-		private static readonly string _barPosition = ConfigurationManager.Variables["$barPosition"];
-		private static readonly int _barSize = int.Parse(ConfigurationManager.Variables["$barSize"]);
+		private static string BarPosition { get; set; }
+		private static int BarSize { get; set; }
 		private static readonly List<Bar> _wmBars = new List<Bar>();
 
 		[STAThread]
@@ -24,34 +25,59 @@ namespace WM.UI
 			RunApplication(container);
 		}
 
-		private static Container Bootstrap()
+		public static Container Bootstrap()
 		{
-			// Create the container as usual.
 			var container = new Container();
-			container.Register<Bar>();
+			try
+			{
+				// Create the container as usual.
+				container.Register<IConfigurationManager, ConfigurationManager>(Lifestyle.Singleton);
+				container.Register<Bar>();
+				container.Register<BarViewModel>();
 
-			// Register your types, for instance:
-			container.Verify();
+				container.RegisterConditional(typeof(ILog),
+					c => typeof(Log4NetAdapter<>).MakeGenericType(c.Consumer.ImplementationType),
+					Lifestyle.Singleton,
+					c => true);
 
-			return container;
+				// Register your types, for instance:
+				container.Verify();
+
+				return container;
+			}
+			catch (Exception ex)
+			{
+				//Log the exception and exit
+				container.GetInstance<ILog>().Error(ex);
+				throw;
+			}
 		}
 
 		private static void RunApplication(Container container)
 		{
 			try
 			{
+				var configurationManager = container.GetInstance<IConfigurationManager>();
+				container.GetInstance<IConfigurationManager>().Initalize();
+
+				BarPosition = configurationManager.Variables["$barPosition"];
+				BarSize = Convert.ToInt32(configurationManager.Variables["$barSize"]);
+
+
 				var app = new App();
 				foreach (var screen in Screen.AllScreens)
 				{
 					var x = screen.Bounds.Left;
-					var y = _barPosition == "top" ? screen.Bounds.Top : screen.Bounds.Bottom - _barSize;
+					var y = BarPosition == "top" ? screen.Bounds.Top : screen.Bounds.Bottom - BarSize;
 
-				var bar= container.GetInstance<Bar>();
+					var bar = container.GetInstance<Bar>();
+					bar.Initialize();
+
 					bar.Left = x;
 					bar.Top = y;
-					bar.Height = _barSize;
+					bar.Height = BarSize;
 					bar.Width = screen.Bounds.Width;
-					
+
 					bar.Show();
 					_wmBars.Add(bar);
 				}
@@ -61,18 +87,9 @@ namespace WM.UI
 			catch (Exception ex)
 			{
 				//Log the exception and exit
+				container.GetInstance<ILog>().Error(ex);
+				throw;
 			}
-		}
-
-
-		private static void CreateWmBars()
-		{
-		}
-
-		private static void OnProcessExit(object sender, EventArgs e)
-		{
-			WindowsTaskBarManager.Show();
 		}
 	}
 }
-

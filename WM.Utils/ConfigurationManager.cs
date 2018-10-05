@@ -6,20 +6,28 @@ using System.Windows.Media;
 
 namespace WM.Utils
 {
-	public class ConfigurationManager
+	public class ConfigurationManager : IConfigurationManager
 	{
 		private const string Config = "ricerc";
 
-		public static Dictionary<string, string> Variables = new Dictionary<string, string>();
-		public static List<Binding> Bindings = new List<Binding>();
-		public static List<StartupTask> StartupTasks = new List<StartupTask>();
-		public static Brush BackgroundColor { get; set; }
-		public static Brush BackgroundColorLighter { get; set; }
-		public static Brush AccentColor { get; set; } 
-		public static Brush ForegroundColor { get; set; } 
-		public static string[] JNumbers = {"一", "二", "三", "四", "五", "六", "七", "八", "九"};
+		public Dictionary<string, string> Variables { get; set; }
+		public List<Binding> Bindings { get; set; }
+		public List<StartupTask> StartupTasks { get; set; }
+		public Brush BackgroundColor { get; set; }
+		public Brush BackgroundColorLighter { get; set; }
+		public Brush AccentColor { get; set; }
+		public Brush ForegroundColor { get; set; }
+		public string[] JNumbers { get; } = {"一", "二", "三", "四", "五", "六", "七", "八", "九"};
+
 
 		public ConfigurationManager()
+		{
+			Variables = new Dictionary<string, string>();
+			Bindings = new List<Binding>();
+			StartupTasks = new List<StartupTask>();
+		}
+
+		public void Initalize()
 		{
 			var reader = File.OpenText(Config);
 			string line;
@@ -41,41 +49,41 @@ namespace WM.Utils
 						continue;
 				}
 			}
+
 			SubstituteVariables();
 			SetColors();
 		}
 
-
-		private static void AddBinding(string[] bindStatement)
+		public void AddBinding(string[] bindStatement)
 		{
 			var validNumberOfArguments = bindStatement.Length >= 3;
 			var isModifierAndKeyCombination = bindStatement[1].Split('+').Length >= 2;
-			
+
 			if (!validNumberOfArguments || !isModifierAndKeyCombination) return;
 
 			var keyCombination = bindStatement[1];
 			var command = bindStatement[2];
 			var parameters = bindStatement.Length > 3 ? bindStatement[3] : null;
-			
+
 			Bindings.Add(new Binding(keyCombination, command, parameters));
 		}
 
-		private static void AddStartupTask(string[] startupTaskStatement)
+		public void AddStartupTask(string[] startupTaskStatement)
 		{
 			var validNumberOfArguments = startupTaskStatement.Length >= 3;
-			
+
 			if (!validNumberOfArguments) return;
 
 			var command = startupTaskStatement[1];
 			var parameters = startupTaskStatement[2];
-			
+
 			StartupTasks.Add(new StartupTask(command, parameters));
 		}
 
-		private static void SetVariable(string[] setVariableStatement)
+		public void SetVariable(string[] setVariableStatement)
 		{
 			var validNumberOfArguments = setVariableStatement.Length == 3;
-			
+
 			if (!validNumberOfArguments) return;
 
 			var variableName = setVariableStatement[1];
@@ -84,7 +92,7 @@ namespace WM.Utils
 			Variables.Add(variableName, variableValue);
 		}
 
-		private static void SubstituteVariables()
+		public void SubstituteVariables()
 		{
 			foreach (var variable in Variables)
 			{
@@ -94,8 +102,8 @@ namespace WM.Utils
 				}
 			}
 		}
-		
-		private static void SetColors()
+
+		public void SetColors()
 		{
 			BackgroundColor = (Brush) new BrushConverter().ConvertFrom(Variables["$backgroundColor"]);
 			BackgroundColorLighter = (Brush) new BrushConverter().ConvertFrom(Variables["$backgroundColorLighter"]);

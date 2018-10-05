@@ -37,6 +37,10 @@
     <StartupObject>WM.UI.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SimpleInjector, Version=4.3.0.0, Culture=neutral, PublicKeyToken=984cb50dea722e99">
       <HintPath>..\packages\SimpleInjector.4.3.0\lib\net45\SimpleInjector.dll</HintPath>
       <Private>True</Private>
@@ -67,8 +71,13 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Commands\AwaitableDelegateCommand.cs" />
+    <Compile Include="Commands\DelegateCommand.cs" />
+    <Compile Include="Log4NetAdapter.cs" />
     <Compile Include="Models\StatusBarItem.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ViewModelBase.cs" />
+    <Compile Include="ViewModelLocator.cs" />
     <Compile Include="ViewModels\BarViewModel.cs" />
     <Compile Include="Views\Bar.xaml.cs">
       <DependentUpon>Bar.xaml</DependentUpon>
