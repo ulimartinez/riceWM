@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using WM.UI.Models;
+using WM.UI.ViewModels;
 using WM.Utils;
 
 namespace WM.UI.Views
@@ -20,10 +21,11 @@ namespace WM.UI.Views
 		public List<StatusBarItem> StatusBarItems { get; set; }
 		private IConfigurationManager _configurationManager;
 
-		public Bar()
+		public Bar(BarViewModel viewModel)
 		{
 			WorkSpaces = new List<Workspace>();
 			StatusBarItems = new List<StatusBarItem>();
+			DataContext = viewModel;
 		}
 
 		public void Initialize()

@@ -74,6 +74,7 @@
     <Compile Include="Commands\AwaitableDelegateCommand.cs" />
     <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Log4NetAdapter.cs" />
+    <Compile Include="Models\IStatusBarItem.cs" />
     <Compile Include="Models\StatusBarItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ViewModelBase.cs" />

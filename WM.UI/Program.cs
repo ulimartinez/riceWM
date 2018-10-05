@@ -13,7 +13,7 @@ namespace WM.UI
 	{
 		private static string BarPosition { get; set; }
 		private static int BarSize { get; set; }
-		private static readonly List<Bar> _wmBars = new List<Bar>();
+		private static readonly List<Bar> WmBars = new List<Bar>();
 
 		[STAThread]
 		static void Main()
@@ -79,7 +79,7 @@ namespace WM.UI
 					bar.Width = screen.Bounds.Width;
 
 					bar.Show();
-					_wmBars.Add(bar);
+					WmBars.Add(bar);
 				}
 
 				app.Run();
